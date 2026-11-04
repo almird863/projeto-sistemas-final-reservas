@@ -11,5 +11,6 @@ def criar_db():
                 cpf INTEGER,
                 cidade_origem TEXT
                 senha TEXT)''')
-    
+
+.
 criar_db()
