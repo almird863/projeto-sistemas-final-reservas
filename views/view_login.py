@@ -3,7 +3,7 @@ from tkinter import messagebox
 
 root = tk.Tk()
 root.title('Sistema de Reservas - Hotel')
-root.geometry('600x400')
+root.geometry('800x500')
 root.resizable(False, False)
 
 titulo = tk.Label(
@@ -21,13 +21,21 @@ label_usuario.pack()
 entrada_login = tk.Entry(root, )
 entrada_login.pack()
 
+
 label_senha = tk.Label(root, text=' Senha: ')
 label_senha.pack()
 entrada_senha = tk.Entry(root, )
 entrada_senha.pack()
 
+btn_login = tk.Button(root, text='✅ Entrar', width=10)
+btn_login.pack()
+
 label_cadastro = tk.Label(root, text='Não tem conta? ')
 label_cadastro.pack()
+entrada_cadastro = tk.Entry(root)
+
+btn_cadastro = tk.Button(root, text='Cadastre-se')
+btn_cadastro.pack()
 
 
 root.mainloop()
