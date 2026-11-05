@@ -30,16 +30,19 @@ def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
 
 
     # verificação para idade
-    # - tipo errado
+    # 1 - tipo errado
     try:
         idade = int(idade)
     except (ValueError, TypeError):
         return False, "A idade deve ser um número inteiro."
 
-    # - nula
+    # 2 - nula
     if idade <= 0:
         return False, "A idade deve ser maior que zero."
 
     #=================== INSERINDO CLIENTE =====================
-    inserir_db_cliente(nome, idade, cpf, cidade_origem, senha)
-    return True
+    try:
+        inserir_db_cliente(nome, idade, cpf, cidade_origem, senha)
+        return True, 
+    except Exception as e:
+        return False, f"Erro, ao cadastrar cliente: {e}"
