@@ -1,4 +1,5 @@
 from models.model_cliente import inserir_db_cliente
+from validate_docbr import CPF
 
 def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
     """
@@ -11,7 +12,7 @@ def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
         cidade_origem - string
         senha - string
 
-    retorna uma tupla:
+    o padrão é retornar uma tupla:
         return(sucesso, mensagem) - para puxar um messagebox na view
     """
 
@@ -28,6 +29,11 @@ def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
     if not senha:
         return False, "A senha é obrigatória."
 
+    # verificação CPF válido
+    documento = CPF()
+    
+    if not documento.validate(cpf):
+        return False, "CPF inválido."
 
     # verificação para idade
     # 1 - tipo errado
@@ -39,10 +45,12 @@ def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
     # 2 - nula
     if idade <= 0:
         return False, "A idade deve ser maior que zero."
-
+    # 3 - idade impossivel
+    elif idade > 130:
+        return False, "A idade deve ser menor que 130."
     #=================== INSERINDO CLIENTE =====================
     try:
         inserir_db_cliente(nome, idade, cpf, cidade_origem, senha)
-        return True, 
+        return True, "Sucesso ao cadastrar cliente."
     except Exception as e:
         return False, f"Erro, ao cadastrar cliente: {e}"
