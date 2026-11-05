@@ -26,4 +26,8 @@ label_senha.pack()
 entrada_senha = tk.Entry(root, )
 entrada_senha.pack()
 
+label_cadastro = tk.Label(root, text='Não tem conta? ')
+label_cadastro.pack()
+
+
 root.mainloop()

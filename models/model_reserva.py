@@ -3,7 +3,6 @@ import sqlite3
 cx = sqlite3.connect('databank/sistema-hotelaria.db')
 cs = cx.cursor()
 
-
 def criar_db_reservas():
     cs.execute('''CREATE TABLE IF NOT EXISTS Reservas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
