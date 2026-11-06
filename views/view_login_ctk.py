@@ -100,12 +100,12 @@ class LoginView(ctk.CTk):
         ).pack(side="left")
 
         # Botão fechar (X) - opcional, pois a janela já tem o seu próprio
-        ctk.CTkButton(
-            self.barra, text="✕", width=36, height=28,
-            fg_color="transparent", hover_color="#C0392B",
-            text_color="white", corner_radius=4,
-            command=self.destroy,
-        ).pack(side="right", padx=8)
+        # ctk.CTkButton(
+        #     self.barra, text="✕", width=36, height=28,
+        #     fg_color="transparent", hover_color="#C0392B",
+        #     text_color="white", corner_radius=4,
+        #     command=self.destroy,
+        # ).pack(side="right", padx=8)
 
     # ------------------------------------------------------------------
     # PAINEL ESQUERDO (foto do quarto + onda decorativa)
@@ -295,8 +295,8 @@ class LoginView(ctk.CTk):
         # TODO: validar credenciais e abrir a próxima tela
 
     def ao_clicar_cadastrar(self):
-        print("Abrir tela de cadastro")
-        # TODO: abrir a view de cadastro
+        from views.view_cadastro_cliente import CadastroView
+        CadastroView(self)
 
 
 if __name__ == "__main__":
