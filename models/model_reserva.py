@@ -86,7 +86,7 @@ def inserir_db_reserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas
                       VALUES (?, ?, ?, ?, ?, ?)''',
                    (id_cliente, id_apto, data_entrada, data_saida, qt_pessoas, valor))
         cx.commit()
-        return valor
+        return True, valor
     except sqlite3.Error as e:
         cx.rollback()
         print(f"Erro ao inserir reserva: {e}")
@@ -108,7 +108,7 @@ def atualizar_db_reserva(id_reserva, data_entrada, data_saida, qt_pessoas):
                       WHERE id = ?''',
                    (data_entrada, data_saida, qt_pessoas, valor, id_reserva))
         cx.commit()
-        return valor
+        return True, valor
     except sqlite3.Error as e:
         cx.rollback()
         print(f"Erro ao atualizar reserva: {e}")

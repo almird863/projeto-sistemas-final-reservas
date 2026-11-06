@@ -6,7 +6,6 @@ cs = cx.cursor()
 
 COLUNAS_PERMITIDAS = {"nome", "idade", "cpf", "cidade_origem", "senha"}
 
-
 def criar_db_clientes():
     cs.execute('''CREATE TABLE IF NOT EXISTS Clientes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,13 +39,13 @@ def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
                       VALUES (?, ?, ?, ?, ?)''',
                    (nome, idade, cpf, cidade_origem, senha))
         cx.commit()
+        return True, "Registro de cliente criado com sucesso"
     except sqlite3.IntegrityError:
         cx.rollback()
-        messagebox.showerror("Erro!", "Já existe um cliente com esse CPF.")
+        return False
     except sqlite3.Error as e:
         cx.rollback()
-        print(f"Erro ao inserir: {e}")
-        messagebox.showerror("Erro!", "Erro ao registrar cliente. Tente novamente.")
+        return False
 
 
 def atualizar_db_clientes(a_ser_atualizado, valor_atualizado, id_cliente):
@@ -56,17 +55,19 @@ def atualizar_db_clientes(a_ser_atualizado, valor_atualizado, id_cliente):
         cs.execute(f"UPDATE Clientes SET {a_ser_atualizado} = ? WHERE id = ?",
                    (valor_atualizado, id_cliente))
         cx.commit()
+        return True, "Cliente atualizado com sucesso"
     except sqlite3.Error as e:
         cx.rollback()
-        print(f"Erro ao atualizar: {e}")
-        messagebox.showerror("Erro!", "Erro ao atualizar cliente. Tente novamente.")
+        return False
+        
 
 
 def excluir_db_clientes(id_cliente):
     try:
         cs.execute("DELETE FROM Clientes WHERE id = ?", (id_cliente,))
         cx.commit()
+        return True, "Cliente removido com sucesso"
     except sqlite3.Error as e:
         cx.rollback()
         print(f"Erro ao deletar: {e}")
-        messagebox.showerror("Erro!", "Erro ao deletar cliente. Tente novamente.")
+        return False
