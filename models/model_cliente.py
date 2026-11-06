@@ -1,5 +1,4 @@
 import sqlite3
-from tkinter import messagebox
 
 cx = sqlite3.connect('databank/sistema-hotelaria.db')
 cs = cx.cursor()
@@ -21,15 +20,13 @@ def buscar_cliente(nome):
         cs.execute("SELECT * FROM Clientes WHERE nome = ?", (nome,))
         return cs.fetchone()
     except sqlite3.Error as e:
-        print(f"Erro ao buscar cliente: {e}")
-        return None
+        return []
 
 def listar_clientes():
     try:
         cs.execute("SELECT * FROM Clientes")
         return cs.fetchall()
     except sqlite3.Error as e:
-        print(f"Erro ao listar clientes: {e}")
         return []
 
 
@@ -69,5 +66,4 @@ def excluir_db_clientes(id_cliente):
         return True, "Cliente removido com sucesso"
     except sqlite3.Error as e:
         cx.rollback()
-        print(f"Erro ao deletar: {e}")
         return False

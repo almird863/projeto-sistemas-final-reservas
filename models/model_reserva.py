@@ -1,11 +1,12 @@
 import sqlite3
 from datetime import datetime
-from tkinter import messagebox
 
 cx = sqlite3.connect('databank/sistema-hotelaria.db')
 cs = cx.cursor()
 
-colunas_permitidas = {"id","data_entrada","data_saida","qt_pessoas","valor"}
+colunas_permitidas = {"id", "data_entrada",
+                      "data_saida", "qt_pessoas", "valor"}
+
 
 def criar_db_reservas():
     cs.execute('''CREATE TABLE IF NOT EXISTS Reservas (
@@ -47,7 +48,8 @@ def _validar_e_calcular(id_apto, data_entrada, data_saida, qt_pessoas, ignorar_i
     if qt_pessoas <= 0:
         raise ValueError("A quantidade de pessoas deve ser maior que zero.")
     if limite_pessoa is not None and qt_pessoas > limite_pessoa:
-        raise ValueError(f"Este apartamento comporta no máximo {limite_pessoa} pessoa(s).")
+        raise ValueError(
+            f"Este apartamento comporta no máximo {limite_pessoa} pessoa(s).")
 
     cs.execute('''SELECT 1 FROM Reservas
                   WHERE id_apto = ? AND data_entrada < ? AND data_saida > ?

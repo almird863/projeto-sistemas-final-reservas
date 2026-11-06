@@ -8,6 +8,7 @@ COLUNAS_PERMITIDAS = {
     "pet_friendly", "qt_camas", "vista_mar", "frigobar", "mesa_sinuca",
 }
 
+
 def criar_db_aptos():
     cs.execute('''CREATE TABLE IF NOT EXISTS Apartamentos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,6 +23,7 @@ def criar_db_aptos():
                 frigobar INTEGER NOT NULL DEFAULT 0 CHECK (frigobar IN (0, 1)),
                 mesa_sinuca INTEGER NOT NULL DEFAULT 0 CHECK (mesa_sinuca IN (0, 1)))''')
     cx.commit()
+
 
 def buscar_apto(numero):
     try:
@@ -60,6 +62,7 @@ def inserir_db_apto(tipo, numeracao, vago, preco_pessoa, limite_pessoa):
         cx.rollback()
         print(f"Erro ao inserir apartamento: {e}")
         return False
+
 
 def atualizar_db_apto(a_ser_atualizado, valor_atualizado, id_apto):
     if a_ser_atualizado not in COLUNAS_PERMITIDAS:
