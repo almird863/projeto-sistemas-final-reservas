@@ -10,5 +10,11 @@ def criar_db_clientes():
                 nome TEXT NOT NULL,
                 idade INTEGER,
                 cpf INTEGER,
-                cidade_origem TEXT
+                cidade_origem TEXT,
                 senha TEXT)''')
+    cx.commit()
+
+def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
+    cs.execute('''INSERT INTO Clientes (nome, idade, cpf, cidade_origem, senha)
+               VALUES (?, ?, ?, ?, ?)''', (nome, idade, cpf, cidade_origem, senha))
+    cx.commit()
