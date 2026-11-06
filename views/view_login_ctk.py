@@ -117,7 +117,7 @@ class LoginView(ctk.CTk):
 
         # >>> IMAGEM: FOTO DO QUARTO (lado esquerdo) - ~420x560 <<<
         # Coloque o arquivo em assets/foto_quarto.png
-        self.img_quarto = carregar_imagem("foto_quarto.png", (420, 560))
+        self.img_quarto = carregar_imagem("img_login.jpg", (420, 560))
         self.lbl_foto = ctk.CTkLabel(
             self.painel_esq,
             text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/foto_quarto.png",
