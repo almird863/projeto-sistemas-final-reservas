@@ -18,3 +18,5 @@ def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
     cs.execute('''INSERT INTO Clientes (nome, idade, cpf, cidade_origem, senha)
                VALUES (?, ?, ?, ?, ?)''', (nome, idade, cpf, cidade_origem, senha))
     cx.commit()
+    
+    
