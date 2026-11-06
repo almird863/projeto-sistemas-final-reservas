@@ -239,24 +239,30 @@ class LoginView(ctk.CTk):
             self._refs_imagens = []
         self._refs_imagens.append(img)
 
+        # CORREÇÃO DA BORDA:
+        # - fg_color explícito ("white") em vez de "transparent", para o ícone
+        #   e o campo terem exatamente a mesma cor da moldura;
+        # - pady/padx deixam uma folga para a borda arredondada ficar visível
+        #   (antes os widgets cobriam a borda e os cantos).
         ctk.CTkLabel(
             moldura,
             text="" if img else icone_fallback,
             image=img,
             text_color=AZUL_ESCURO,
+            fg_color="white",
             width=30,
             font=ctk.CTkFont(size=15),
-        ).pack(side="left", padx=(12, 0))
+        ).pack(side="left", padx=(10, 0), pady=3)
 
         entry = ctk.CTkEntry(
             moldura,
             placeholder_text=placeholder,
             show=mostrar if mostrar else "",
-            border_width=0, fg_color="transparent",
+            border_width=0, fg_color="white",
             text_color="#222", placeholder_text_color="#6B7080",
             font=ctk.CTkFont(family="Segoe UI", size=14),
         )
-        entry.pack(side="left", fill="both", expand=True, padx=(4, 10))
+        entry.pack(side="left", fill="both", expand=True, padx=(4, 8), pady=3)
         return entry
 
     # ------------------------------------------------------------------
