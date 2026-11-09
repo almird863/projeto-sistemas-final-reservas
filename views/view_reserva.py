@@ -5,12 +5,13 @@ quanto executável de forma independente para testes.
 
 Seguindo o design da imagem:
 - Topo: Ícone e Título "Reservas - Confira a disponibilidade e faça sua reserva"
-- Painel Esquerdo: "Filtros de Busca" (Data Entrada, Data Saída, Tipo de Apto, Botão Buscar)
+- Painel Esquerdo: "Filtros de Busca" (Data Entrada, Data Saída com Calendário Popup, Tipo de Apto, Botão Buscar)
 - Painel Direito: "Apartamentos Disponíveis" (Cards com foto, tipo, descrição, diária e botão Reservar)
 """
 
+import calendar
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from tkinter import messagebox
 import customtkinter as ctk
 
@@ -42,6 +43,168 @@ BORDA_CARD = "#DCE4F0"
 AZUL_CABECALHO = "#14376E"
 
 
+# ----------------------------------------------------------------------
+# POPUP DE CALENDÁRIO VISUAL NATIVO (CustomTkinter)
+# ----------------------------------------------------------------------
+class PopupCalendario(ctk.CTkToplevel):
+    """
+    Janelinha modal com calendário interativo para seleção de data.
+    Não necessita de nenhuma biblioteca externa!
+    """
+
+    MESES = [
+        "", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ]
+    DIAS_SEMANA = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+
+    def __init__(self, master, data_inicial=None, ao_selecionar=None):
+        super().__init__(master)
+        self.ao_selecionar = ao_selecionar
+
+        if data_inicial:
+            try:
+                dt = datetime.strptime(data_inicial, "%d/%m/%Y").date()
+                self.ano_atual = dt.year
+                self.mes_atual = dt.month
+                self.dia_selecionado = dt.day
+            except Exception:
+                hoje = date.today()
+                self.ano_atual = hoje.year
+                self.mes_atual = hoje.month
+                self.dia_selecionado = hoje.day
+        else:
+            hoje = date.today()
+            self.ano_atual = hoje.year
+            self.mes_atual = hoje.month
+            self.dia_selecionado = hoje.day
+
+        self.title("Selecionar Data")
+        self.geometry("310x330")
+        self.resizable(False, False)
+        self.configure(fg_color="white")
+
+        if master is not None and master.winfo_viewable():
+            self.transient(master)
+
+        self._criar_ui()
+
+        # Foco e posicionamento
+        self.after(100, self._centralizar_e_focar)
+
+    def _centralizar_e_focar(self):
+        self.lift()
+        self.focus_force()
+        self.grab_set()
+
+    def _criar_ui(self):
+        # 1. Barra de Navegação de Mês/Ano
+        nav = ctk.CTkFrame(self, fg_color=AZUL_CABECALHO, corner_radius=0, height=44)
+        nav.pack(fill="x")
+        nav.pack_propagate(False)
+
+        btn_ant = ctk.CTkButton(
+            nav, text="◀", width=32, height=32,
+            fg_color="transparent", hover_color=AZUL_HOVER,
+            font=(FONTE, 12, "bold"), command=self._mes_anterior
+        )
+        btn_ant.pack(side="left", padx=8)
+
+        self.lbl_mes_ano = ctk.CTkLabel(
+            nav, text="", font=ctk.CTkFont(family=FONTE, size=14, weight="bold"),
+            text_color="white"
+        )
+        self.lbl_mes_ano.pack(side="left", expand=True)
+
+        btn_prox = ctk.CTkButton(
+            nav, text="▶", width=32, height=32,
+            fg_color="transparent", hover_color=AZUL_HOVER,
+            font=(FONTE, 12, "bold"), command=self._mes_proximo
+        )
+        btn_prox.pack(side="right", padx=8)
+
+        # 2. Dias da Semana (Seg, Ter, Qua...)
+        semana = ctk.CTkFrame(self, fg_color="#F1F5F9", height=28, corner_radius=0)
+        semana.pack(fill="x")
+        for i, d in enumerate(self.DIAS_SEMANA):
+            ctk.CTkLabel(
+                semana, text=d, font=(FONTE, 11, "bold"),
+                text_color=AZUL_ESCURO if i < 5 else LARANJA, width=42
+            ).pack(side="left")
+
+        # 3. Grade dos Dias do Mês
+        self.frame_dias = ctk.CTkFrame(self, fg_color="white", corner_radius=0)
+        self.frame_dias.pack(fill="both", expand=True, padx=8, pady=8)
+
+        self._desenhar_dias()
+
+    def _desenhar_dias(self):
+        for w in self.frame_dias.winfo_children():
+            w.destroy()
+
+        self.lbl_mes_ano.configure(
+            text=f"{self.MESES[self.mes_atual]} {self.ano_atual}"
+        )
+
+        # Matriz de semanas do calendário (0 = dia fora do mês)
+        cal = calendar.monthcalendar(self.ano_atual, self.mes_atual)
+        hoje = date.today()
+
+        for r, sem in enumerate(cal):
+            for c, dia in enumerate(sem):
+                if dia == 0:
+                    lbl = ctk.CTkLabel(self.frame_dias, text="", width=36, height=30)
+                    lbl.grid(row=r, column=c, padx=2, pady=2)
+                else:
+                    e_selecionado = (dia == self.dia_selecionado)
+                    e_hoje = (
+                        dia == hoje.day and
+                        self.mes_atual == hoje.month and
+                        self.ano_atual == hoje.year
+                    )
+
+                    fg = LARANJA if e_selecionado else ("#E2E8F0" if e_hoje else "transparent")
+                    tc = "white" if e_selecionado else AZUL_ESCURO
+
+                    btn = ctk.CTkButton(
+                        self.frame_dias,
+                        text=str(dia),
+                        width=36, height=30,
+                        corner_radius=6,
+                        fg_color=fg,
+                        hover_color=LARANJA_HOVER if e_selecionado else "#E2E8F0",
+                        text_color=tc,
+                        font=ctk.CTkFont(family=FONTE, size=12, weight="bold" if (e_selecionado or e_hoje) else "normal"),
+                        command=lambda d=dia: self._escolher_dia(d)
+                    )
+                    btn.grid(row=r, column=c, padx=2, pady=2)
+
+    def _mes_anterior(self):
+        if self.mes_atual == 1:
+            self.mes_atual = 12
+            self.ano_atual -= 1
+        else:
+            self.mes_atual -= 1
+        self._desenhar_dias()
+
+    def _mes_proximo(self):
+        if self.mes_atual == 12:
+            self.mes_atual = 1
+            self.ano_atual += 1
+        else:
+            self.mes_atual += 1
+        self._desenhar_dias()
+
+    def _escolher_dia(self, dia):
+        data_escolhida = f"{dia:02d}/{self.mes_atual:02d}/{self.ano_atual}"
+        if self.ao_selecionar:
+            self.ao_selecionar(data_escolhida)
+        self.destroy()
+
+
+# ----------------------------------------------------------------------
+# TELA DE RESERVAS
+# ----------------------------------------------------------------------
 class TelaReservas(TelaBase):
     """
     Tela de Consulta e Reserva de Apartamentos.
@@ -211,19 +374,36 @@ class TelaReservas(TelaBase):
             text_color=AZUL_ESCURO,
         )
         entry.insert(0, valor_inicial)
-        # pady=3 e padx garantem que o entry não cubra as bordas superior/inferior da moldura
         entry.pack(side="left", fill="both", expand=True, padx=(10, 4), pady=3)
 
-        # Ícone de calendário pequeno no canto direito do campo
+        # Botão com o ícone do calendário para abrir o popup seletor de data
         # >>> IMAGEM: 'icone_calendario_campo.png' (18x18) em views/assets/ <<<
         img_cal = carregar_imagem("icone_calendario_campo.png", (18, 18))
         if img_cal:
             self._imagens_cache.append(img_cal)
-            lbl = ctk.CTkLabel(moldura, text="", image=img_cal, fg_color="white")
+            btn_cal = ctk.CTkButton(
+                moldura, text="", image=img_cal, width=28, height=28,
+                fg_color="transparent", hover_color="#E2E8F0", cursor="hand2",
+                command=lambda e=entry: self._abrir_seletor_data(e)
+            )
         else:
-            lbl = ctk.CTkLabel(moldura, text="📅", font=(FONTE, 14), text_color=AZUL_ESCURO, fg_color="white")
-        lbl.pack(side="right", padx=(0, 10), pady=3)
+            btn_cal = ctk.CTkButton(
+                moldura, text="📅", width=28, height=28,
+                fg_color="transparent", hover_color="#E2E8F0", cursor="hand2",
+                font=(FONTE, 14), text_color=AZUL_ESCURO,
+                command=lambda e=entry: self._abrir_seletor_data(e)
+            )
+        btn_cal.pack(side="right", padx=(0, 6), pady=3)
         return entry
+
+    def _abrir_seletor_data(self, entry_alvo):
+        """Abre o popup do calendário e atualiza o campo ao selecionar o dia."""
+        def atualizar(data_formatada):
+            entry_alvo.delete(0, "end")
+            entry_alvo.insert(0, data_formatada)
+
+        data_atual = entry_alvo.get().strip()
+        PopupCalendario(self, data_inicial=data_atual, ao_selecionar=atualizar)
 
     # --- PAINEL DIREITO: LISTA DE APARTAMENTOS -------------------------
     def _criar_painel_apartamentos(self, master):
