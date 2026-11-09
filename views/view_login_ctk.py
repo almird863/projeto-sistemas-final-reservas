@@ -22,6 +22,7 @@ from tkinter import messagebox
 import customtkinter as ctk
 from PIL import Image
 from views.view_cadastro_cliente import CadastroView
+from controls.control_cliente import AutenticarCliente
 
 # ----------------------------------------------------------------------
 # CONFIGURAÇÕES GERAIS
@@ -303,26 +304,28 @@ class LoginView(ctk.CTk):
     # AÇÕES (conecte aqui ao seu controller / banco de dados)
     # ------------------------------------------------------------------
     def ao_clicar_entrar(self):
-        print("MORREU AQUI")
-        usuario = self.entry_usuario.get().strip()
+        cpf = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
 
-        if not usuario or not senha:
+        if not cpf or not senha:
             messagebox.showwarning(
                 "Login", "Preencha o usuário e a senha para continuar.", parent=self)
             return
 
-        # TODO: validar as credenciais no controller/banco (decisão do grupo:
-        # entrar com CPF e senha). Por enquanto, qualquer par preenchido entra.
+        sucesso, mensagem = AutenticarCliente(cpf, senha)
+
+        if not sucesso:
+            messagebox.showerror('Erro de Autenticação', mensagem, parent=self)
+            return
 
         self.autenticado = True
-        self.usuario_logado = usuario
+        self.usuario_logado = cpf
         self.destroy()  # fecha o login; o main.py abre o menu principal
 
     def ao_clicar_cadastrar(self):
 
         CadastroView(self)
 
-
-app = LoginView()
-app.mainloop()
+if __name__ == '__main__':
+    app = LoginView()
+    app.mainloop()
