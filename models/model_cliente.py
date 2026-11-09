@@ -51,10 +51,10 @@ def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
         return True, "Registro de cliente criado com sucesso"
     except sqlite3.IntegrityError:
         cx.rollback()
-        return False
+        return False, "Erro de integridade"
     except sqlite3.Error as e:
         cx.rollback()
-        return False
+        return False, f"Erro: {e}"
 
 
 def atualizar_db_clientes(a_ser_atualizado, valor_atualizado, id_cliente):
@@ -79,3 +79,12 @@ def excluir_db_clientes(id_cliente):
     except sqlite3.Error as e:
         cx.rollback()
         return False
+
+def buscar_cliente_por_cpf(cpf):
+    try:
+        cs.execute('''
+                   SELECT * FROM Clientes WHERE cpf = ?
+                   ''', (cpf,))
+        return cs.fetchone()
+    except Exception as e:
+        return None
