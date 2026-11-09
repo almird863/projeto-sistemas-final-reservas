@@ -16,6 +16,8 @@ Estrutura de imagens sugerida (pasta "assets" ao lado deste arquivo):
         onda_laranja.png      -> (opcional) onda decorativa laranja/azul
 """
 
+from controls.control_cliente import AutenticarCliente
+
 import os
 import tkinter as tk
 import customtkinter as ctk
@@ -117,7 +119,7 @@ class LoginView(ctk.CTk):
 
         # >>> IMAGEM: FOTO DO QUARTO (lado esquerdo) - ~420x560 <<<
         # Coloque o arquivo em assets/foto_quarto.png
-        self.img_quarto = carregar_imagem("foto_quarto.png", (420, 560))
+        self.img_quarto = carregar_imagem("img_login.jpg", (420, 560))
         self.lbl_foto = ctk.CTkLabel(
             self.painel_esq,
             text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/foto_quarto.png",
@@ -269,10 +271,11 @@ class LoginView(ctk.CTk):
     # AÇÕES (conecte aqui ao seu controller / banco de dados)
     # ------------------------------------------------------------------
     def ao_clicar_entrar(self):
-        usuario = self.entry_usuario.get().strip()
+        cpf = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
-        print(f"Tentativa de login -> usuário: {usuario!r}, senha: {'*' * len(senha)}")
-        # TODO: validar credenciais e abrir a próxima tela
+
+        sucesso, mensagem = AutenticarCliente(cpf, senha)
+        print(mensagem)
 
     def ao_clicar_cadastrar(self):
         print("Abrir tela de cadastro")
