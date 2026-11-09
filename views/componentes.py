@@ -57,17 +57,19 @@ def montar_imagem_lateral(largura, altura, altura_onda=120):
     ela mantém a proporção e corta o excesso, em vez de ficar esticada.
     Por isso funciona bem em telas de alturas diferentes (login e cadastro).
     """
-    caminho_foto = os.path.join(ASSETS_DIR, "foto_quarto.png")
+    caminho_foto = os.path.join(ASSETS_DIR, "tela_cadastro.png")
     caminho_onda = os.path.join(ASSETS_DIR, "onda_laranja.png")
 
     if os.path.exists(caminho_foto):
         foto = Image.open(caminho_foto).convert("RGBA")
         base = ImageOps.fit(foto, (largura, altura), Image.LANCZOS)
     else:
-        base = Image.new("RGBA", (largura, altura), "#E9E4DA")  # espaço reservado
+        base = Image.new("RGBA", (largura, altura),
+                         "#E9E4DA")  # espaço reservado
 
     if os.path.exists(caminho_onda):
-        onda = Image.open(caminho_onda).convert("RGBA").resize((largura, altura_onda))
+        onda = Image.open(caminho_onda).convert(
+            "RGBA").resize((largura, altura_onda))
         base.alpha_composite(onda, (0, altura - altura_onda))
 
     if not os.path.exists(caminho_foto) and not os.path.exists(caminho_onda):
@@ -78,7 +80,8 @@ def montar_imagem_lateral(largura, altura, altura_onda=120):
 
 def criar_barra_titulo(parent):
     """Barra azul escura do topo, com o ícone da cama e o nome do sistema."""
-    barra = ctk.CTkFrame(parent, height=40, fg_color=AZUL_ESCURO, corner_radius=0)
+    barra = ctk.CTkFrame(
+        parent, height=40, fg_color=AZUL_ESCURO, corner_radius=0)
     barra.pack(side="top", fill="x")
     barra.pack_propagate(False)
 
