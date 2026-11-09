@@ -101,12 +101,12 @@ class LoginView(ctk.CTk):
         ).pack(side="left")
 
         # Botão fechar (X) - opcional, pois a janela já tem o seu próprio
-        ctk.CTkButton(
-            self.barra, text="✕", width=36, height=28,
-            fg_color="transparent", hover_color="#C0392B",
-            text_color="white", corner_radius=4,
-            command=self.destroy,
-        ).pack(side="right", padx=8)
+        # ctk.CTkButton(
+        #     self.barra, text="✕", width=36, height=28,
+        #     fg_color="transparent", hover_color="#C0392B",
+        #     text_color="white", corner_radius=4,
+        #     command=self.destroy,
+        # ).pack(side="right", padx=8)
 
     # ------------------------------------------------------------------
     # PAINEL ESQUERDO (foto do quarto + onda decorativa)
@@ -117,9 +117,16 @@ class LoginView(ctk.CTk):
         self.painel_esq.pack(side="left", fill="y")
         self.painel_esq.pack_propagate(False)
 
-        # >>> IMAGEM: FOTO DO QUARTO (lado esquerdo) - ~420x560 <<<
+        # >>> IMAGEM: FOTO DO QUARTO (lado esquerdo) - 420x560 <<<
         # Coloque o arquivo em assets/foto_quarto.png
-        self.img_quarto = carregar_imagem("Terra.png", (420, 420))
+        #
+        # >>> IMAGEM: ONDA DECORATIVA (laranja/azul na base) - 420x120 <<<
+        # Coloque o arquivo em assets/onda_laranja.png
+        # Deve ser PNG com FUNDO TRANSPARENTE (só a onda desenhada).
+        #
+        # A foto e a onda são unidas numa única imagem com o Pillow, porque
+        # o CTkLabel não mostra a foto através de um fundo transparente.
+        self.img_quarto = self._montar_imagem_esquerda(largura=420, altura=560, altura_onda=120)
         self.lbl_foto = ctk.CTkLabel(
             self.painel_esq,
             text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/Terra.png",
@@ -129,13 +136,26 @@ class LoginView(ctk.CTk):
         )
         self.lbl_foto.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # >>> IMAGEM: ONDA DECORATIVA (laranja/azul na base da foto) <<<
-        # Opcional: PNG com fundo transparente, ~420x120
-        self.img_onda = carregar_imagem("onda_laranja.png", (420, 120))
-        if self.img_onda:
-            lbl_onda = ctk.CTkLabel(self.painel_esq, text="", image=self.img_onda,
-                                    fg_color="transparent")
-            lbl_onda.place(x=0, rely=1.0, anchor="sw")
+    def _montar_imagem_esquerda(self, largura, altura, altura_onda):
+        """Junta foto do quarto + onda (PNG transparente) numa só imagem."""
+        caminho_foto = os.path.join(ASSETS_DIR, "foto_quarto.png")
+        caminho_onda = os.path.join(ASSETS_DIR, "onda_laranja.png")
+
+        if os.path.exists(caminho_foto):
+            base = Image.open(caminho_foto).convert("RGBA").resize((largura, altura))
+        else:
+            # Sem foto ainda: usa um fundo liso como espaço reservado
+            base = Image.new("RGBA", (largura, altura), "#E9E4DA")
+
+        if os.path.exists(caminho_onda):
+            onda = Image.open(caminho_onda).convert("RGBA").resize((largura, altura_onda))
+            # Cola a onda na base da foto respeitando a transparência
+            base.alpha_composite(onda, (0, altura - altura_onda))
+
+        if not os.path.exists(caminho_foto) and not os.path.exists(caminho_onda):
+            return None  # nada para mostrar; o texto de aviso aparece no label
+
+        return ctk.CTkImage(light_image=base, dark_image=base, size=(largura, altura))
 
     # ------------------------------------------------------------------
     # PAINEL DIREITO (formulário de login)
@@ -281,8 +301,8 @@ class LoginView(ctk.CTk):
         # TODO: validar credenciais e abrir a próxima tela
 
     def ao_clicar_cadastrar(self):
-        print("Abrir tela de cadastro")
-        # TODO: abrir a view de cadastro
+        from views.view_cadastro_cliente import CadastroView
+        CadastroView(self)
 
 
 if __name__ == "__main__":
