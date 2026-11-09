@@ -26,11 +26,11 @@ from views.componentes import (
 #   sucesso  -> True se cadastrou, False se algo deu errado
 #   mensagem -> texto pronto para mostrar na tela
 try:
-    from controls.control_cliente import cadastra_cliente
+    from controls.control_cliente import CadastrarCliente
 except Exception as erro:  # ex.: faltou instalar validate-docbr, ou rodou fora da raiz
     _ERRO_IMPORTACAO = str(erro)
 
-    def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
+    def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
         return False, f"Não foi possível carregar o controller:\n{_ERRO_IMPORTACAO}"
 
 
@@ -194,7 +194,7 @@ class CadastroView(ctk.CTkToplevel):
             return
 
         # Todo o resto (campos vazios, CPF válido, idade...) o controller valida
-        sucesso, mensagem = cadastra_cliente(nome, idade, cpf, cidade, senha)
+        sucesso, mensagem = CadastrarCliente(nome, idade, cpf, cidade, senha)
 
         if sucesso:
             messagebox.showinfo("Cadastro", mensagem, parent=self)
