@@ -220,7 +220,7 @@ class JanelaPrincipal(ctk.CTk):
         pelas classes reais conforme forem ficando prontas."""
         self.registrar_tela("inicio", lambda: TelaInicio(self.container, self))
         self.registrar_tela(
-            "reservas", lambda: TelaEmConstrucao(self.container, self, "Reservas"))
+            "reservas", lambda: __import__("views.view_reserva", fromlist=["TelaReservas"]).TelaReservas(self.container, self))
         self.registrar_tela(
             "apartamentos", lambda: TelaEmConstrucao(self.container, self, "Apartamentos"))
         self.registrar_tela(
