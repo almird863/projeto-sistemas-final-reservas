@@ -41,6 +41,9 @@ def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
     if not senha:
         return False, "A senha é obrigatória."
 
+    if len(senha) < 6:
+        return False, "A senha deve ter pelo menos 6 caracteres."
+
     # verificação CPF válido
     documento = CPF()
     
@@ -62,12 +65,16 @@ def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
         return False, "A idade deve ser menor que 130."
     #=================== INSERINDO CLIENTE =====================
     try:
-        senha_criptografada = gerar_hash_senha(senha)
-
-        inserir_db_cliente(nome, idade, cpf, cidade_origem, senha_criptogra)
-        return True, "Sucesso ao cadastrar cliente."
+        senha_criptografada = gerar_hash_senha(senha) # gera a senha do novo user
+        resultado = inserir_db_cliente(nome, idade, cpf, cidade_origem, senha_criptografada)
+        
+        if resultado is False:
+            return False, "Não foi possível cadastrar o cliente."
+        
+        sucesso, mensagem = resultado
+        return sucesso, mensagem
     except Exception as e:
-        return False, f"Erro, ao cadastrar cliente: {e}"
+        return False, f"Erro ao cadastrar cliente: {e}"
 
 
 #------------------- FUNÇÃO DE LOGIN ----------------------------

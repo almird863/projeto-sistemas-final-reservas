@@ -22,6 +22,18 @@ def buscar_cliente(nome):
     except sqlite3.Error as e:
         return []
 
+#----------------------------- BUSCA POR CPF - JACOB
+def buscar_cliente_por_cpf(cpf):
+    try:
+        cs.execute(
+            "SELECT * FROM Clientes WHERE cpf = ?",
+            (cpf,)
+        )
+        return cs.fetchone()
+    except sqlite3.Error:
+        return None
+#####################################################
+
 def listar_clientes():
     try:
         cs.execute("SELECT * FROM Clientes")
