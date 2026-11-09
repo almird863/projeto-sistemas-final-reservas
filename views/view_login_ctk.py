@@ -192,7 +192,7 @@ class LoginView(ctk.CTk):
 
         # --- Campo Usuário ---
         self.entry_usuario = self._criar_campo(
-            form, placeholder="Usuário",
+            form, placeholder="CPF",
             icone_arquivo="icone_campo_user.png", icone_fallback="👤",
         )
 

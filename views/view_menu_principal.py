@@ -92,7 +92,7 @@ class TelaInicio(TelaBase):
     def _criar_banner(self):
         # >>> IMAGEM: assets/lobby.jpg (700x190). Enquanto não existir, usa a
         # foto do quarto com a onda; se nem ela existir, um bloco azul.
-        imagem = carregar_imagem("lobby.jpg", (700, 190)) or montar_imagem_lateral(700, 190, altura_onda=60)
+        imagem = carregar_imagem("banner_interno.png", (700, 200)) or montar_imagem_lateral(700, 190, altura_onda=60)
         if imagem:
             self.img_banner = imagem  # guarda a referência
             return ctk.CTkLabel(self, text="", image=imagem)
