@@ -77,7 +77,8 @@ class LoginView(ctk.CTk):
     # BARRA SUPERIOR (visual de "título" azul escuro)
     # ------------------------------------------------------------------
     def _criar_barra_titulo_interna(self):
-        self.barra = ctk.CTkFrame(self, height=40, fg_color=AZUL_ESCURO, corner_radius=0)
+        self.barra = ctk.CTkFrame(
+            self, height=40, fg_color=AZUL_ESCURO, corner_radius=0)
         self.barra.pack(side="top", fill="x")
         self.barra.pack_propagate(False)
 
@@ -111,16 +112,17 @@ class LoginView(ctk.CTk):
     # PAINEL ESQUERDO (foto do quarto + onda decorativa)
     # ------------------------------------------------------------------
     def _criar_painel_esquerdo(self):
-        self.painel_esq = ctk.CTkFrame(self, width=420, corner_radius=0, fg_color="#E9E4DA")
+        self.painel_esq = ctk.CTkFrame(
+            self, width=420, corner_radius=0, fg_color="#1DCEFF")
         self.painel_esq.pack(side="left", fill="y")
         self.painel_esq.pack_propagate(False)
 
         # >>> IMAGEM: FOTO DO QUARTO (lado esquerdo) - ~420x560 <<<
         # Coloque o arquivo em assets/foto_quarto.png
-        self.img_quarto = carregar_imagem("img_login.jpg", (420, 560))
+        self.img_quarto = carregar_imagem("Terra.png", (420, 420))
         self.lbl_foto = ctk.CTkLabel(
             self.painel_esq,
-            text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/foto_quarto.png",
+            text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/Terra.png",
             image=self.img_quarto,
             text_color="#8A8577",
             font=ctk.CTkFont(size=14),
@@ -139,7 +141,8 @@ class LoginView(ctk.CTk):
     # PAINEL DIREITO (formulário de login)
     # ------------------------------------------------------------------
     def _criar_painel_direito(self):
-        self.painel_dir = ctk.CTkFrame(self, corner_radius=0, fg_color=FUNDO_DIREITO)
+        self.painel_dir = ctk.CTkFrame(
+            self, corner_radius=0, fg_color=FUNDO_DIREITO)
         self.painel_dir.pack(side="left", fill="both", expand=True)
 
         form = ctk.CTkFrame(self.painel_dir, fg_color="transparent")
@@ -199,7 +202,8 @@ class LoginView(ctk.CTk):
         self.btn_entrar.pack(pady=(10, 22))
 
         # Linha separadora
-        ctk.CTkFrame(form, height=1, width=340, fg_color=BORDA_CAMPO).pack(pady=(0, 14))
+        ctk.CTkFrame(form, height=1, width=340,
+                     fg_color=BORDA_CAMPO).pack(pady=(0, 14))
 
         # --- Rodapé: "Não tem conta? Cadastre-se" ---
         rodape = ctk.CTkFrame(form, fg_color="transparent")
@@ -213,7 +217,8 @@ class LoginView(ctk.CTk):
         lbl_cadastro = ctk.CTkLabel(
             rodape, text=" Cadastre-se",
             text_color=LARANJA, cursor="hand2",
-            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold", underline=True),
+            font=ctk.CTkFont(family="Segoe UI", size=12,
+                             weight="bold", underline=True),
         )
         lbl_cadastro.pack(side="left")
         lbl_cadastro.bind("<Button-1>", lambda e: self.ao_clicar_cadastrar())
@@ -271,7 +276,8 @@ class LoginView(ctk.CTk):
     def ao_clicar_entrar(self):
         usuario = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
-        print(f"Tentativa de login -> usuário: {usuario!r}, senha: {'*' * len(senha)}")
+        print(
+            f"Tentativa de login -> usuário: {usuario!r}, senha: {'*' * len(senha)}")
         # TODO: validar credenciais e abrir a próxima tela
 
     def ao_clicar_cadastrar(self):
