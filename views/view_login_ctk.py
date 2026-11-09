@@ -16,6 +16,8 @@ Estrutura de imagens sugerida (pasta "assets" ao lado deste arquivo):
         onda_laranja.png      -> (opcional) onda decorativa laranja/azul
 """
 
+from controls.control_cliente import AutenticarCliente
+
 import os
 import tkinter as tk
 import customtkinter as ctk
@@ -294,7 +296,7 @@ class LoginView(ctk.CTk):
     # AÇÕES (conecte aqui ao seu controller / banco de dados)
     # ------------------------------------------------------------------
     def ao_clicar_entrar(self):
-        usuario = self.entry_usuario.get().strip()
+        cpf = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
         print(
             f"Tentativa de login -> usuário: {usuario!r}, senha: {'*' * len(senha)}")
