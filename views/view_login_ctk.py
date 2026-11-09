@@ -307,6 +307,5 @@ class LoginView(ctk.CTk):
         CadastroView(self)
 
 
-if __name__ == "__main__":
-    app = LoginView()
-    app.mainloop()
+app = LoginView()
+app.mainloop()
