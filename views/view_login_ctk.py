@@ -16,10 +16,9 @@ Estrutura de imagens sugerida (pasta "assets" ao lado deste arquivo):
         onda_laranja.png      -> (opcional) onda decorativa laranja/azul
 """
 
-from controls.control_cliente import AutenticarCliente
-
 import os
 import tkinter as tk
+from tkinter import messagebox
 import customtkinter as ctk
 from PIL import Image
 
@@ -57,6 +56,10 @@ def carregar_imagem(nome_arquivo, tamanho):
 class LoginView(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        # Resultado do login: quem abriu esta janela (main.py) consulta depois
+        self.autenticado = False
+        self.usuario_logado = ""
 
         # --------------------------------------------------------------
         # JANELA
@@ -194,7 +197,7 @@ class LoginView(ctk.CTk):
 
         # --- Campo Usuário ---
         self.entry_usuario = self._criar_campo(
-            form, placeholder="CPF",
+            form, placeholder="CPF (somente números)", mostrar=None,
             icone_arquivo="icone_campo_user.png", icone_fallback="👤",
         )
 
@@ -296,11 +299,20 @@ class LoginView(ctk.CTk):
     # AÇÕES (conecte aqui ao seu controller / banco de dados)
     # ------------------------------------------------------------------
     def ao_clicar_entrar(self):
-        cpf = self.entry_usuario.get().strip()
+        usuario = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
-        print(
-            f"Tentativa de login -> usuário: {usuario!r}, senha: {'*' * len(senha)}")
-        # TODO: validar credenciais e abrir a próxima tela
+
+        if not usuario or not senha:
+            messagebox.showwarning(
+                "Login", "Preencha o usuário e a senha para continuar.", parent=self)
+            return
+
+        # TODO: validar as credenciais no controller/banco (decisão do grupo:
+        # entrar com CPF e senha). Por enquanto, qualquer par preenchido entra.
+
+        self.autenticado = True
+        self.usuario_logado = usuario
+        self.destroy()  # fecha o login; o main.py abre o menu principal
 
     def ao_clicar_cadastrar(self):
         from views.view_cadastro_cliente import CadastroView
