@@ -186,7 +186,7 @@ class JanelaPrincipal(ctk.CTk):
             )
 
         # Empurra o "Sair" para ficar após os outros, com espaço próprio
-        self._botoes["sair"] = self._botao_sidebar("🚪   Sair", self._sair)
+        self._botoes["sair"] = self._botao_sidebar("📤  Sair", self._sair)
 
     def _botao_sidebar(self, texto, comando):
         botao = ctk.CTkButton(
