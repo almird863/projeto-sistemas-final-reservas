@@ -79,6 +79,13 @@ def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
 
 #------------------- FUNÇÃO DE LOGIN ----------------------------
 def AutenticarCliente(cpf, senha):
+    # Validacoes simples
+    if not cpf.strip():
+        return False, "O CPF é obrigatório."
+
+    if not senha:
+        return False, "A senha é obrigatória."
+
     # Buscar cliente no banco de dados
     cliente = buscar_cliente_por_cpf(cpf)
 
