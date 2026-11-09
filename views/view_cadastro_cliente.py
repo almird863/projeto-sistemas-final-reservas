@@ -26,11 +26,11 @@ from views.componentes import (
 #   sucesso  -> True se cadastrou, False se algo deu errado
 #   mensagem -> texto pronto para mostrar na tela
 try:
-    from controls.control_cliente import cadastra_cliente
+    from controls.control_cliente import CadastrarCliente
 except Exception as erro:  # ex.: faltou instalar validate-docbr, ou rodou fora da raiz
     _ERRO_IMPORTACAO = str(erro)
 
-    def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
+    def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
         return False, f"Não foi possível carregar o controller:\n{_ERRO_IMPORTACAO}"
 
 
@@ -90,10 +90,11 @@ class CadastroView(ctk.CTkToplevel):
         self.painel_esq.pack_propagate(False)
 
         # >>> IMAGEM: foto do quarto + onda (veja montar_imagem_lateral em componentes.py)
-        self.img_lateral = montar_imagem_lateral(LARGURA_FOTO, altura_painel, altura_onda=120)
+        self.img_lateral = montar_imagem_lateral(
+            LARGURA_FOTO, altura_painel, altura_onda=120)
         ctk.CTkLabel(
             self.painel_esq,
-            text="" if self.img_lateral else "[ FOTO DO QUARTO ]\nviews/assets/foto_quarto.png",
+            text="" if self.img_lateral else "[ FOTO DO QUARTO ]\nviews/assets/tela_cadastro.png",
             image=self.img_lateral,
             text_color="#8A8577",
             font=ctk.CTkFont(size=14),
@@ -124,10 +125,14 @@ class CadastroView(ctk.CTkToplevel):
         # --- Campos -----------------------------------------------------
         # Cada campo: (placeholder, nome do PNG do ícone, emoji enquanto não há PNG)
         # >>> IMAGEM: coloque os ícones (20x20) em views/assets/ com estes nomes
-        self.entry_nome = criar_campo(form, "Nome completo", "icone_campo_user.png", "👤")
-        self.entry_idade = criar_campo(form, "Idade", "icone_campo_idade.png", "🎂")
-        self.entry_cpf = criar_campo(form, "CPF (somente números)", "icone_campo_cpf.png", "🪪")
-        self.entry_cidade = criar_campo(form, "Cidade de origem", "icone_campo_cidade.png", "📍")
+        self.entry_nome = criar_campo(
+            form, "Nome completo", "icone_campo_user.png", "👤")
+        self.entry_idade = criar_campo(
+            form, "Idade", "icone_campo_idade.png", "🎂")
+        self.entry_cpf = criar_campo(
+            form, "CPF (somente números)", "icone_campo_cpf.png", "🪪")
+        self.entry_cidade = criar_campo(
+            form, "Cidade de origem", "icone_campo_cidade.png", "📍")
         self.entry_senha = criar_campo(
             form, "Senha", "icone_campo_senha.png", "🔒", mostrar="•"
         )
@@ -149,7 +154,8 @@ class CadastroView(ctk.CTkToplevel):
         self.btn_cadastrar.pack(pady=(14, 18))
 
         # Linha separadora
-        ctk.CTkFrame(form, height=1, width=340, fg_color=BORDA_CAMPO).pack(pady=(0, 12))
+        ctk.CTkFrame(form, height=1, width=340,
+                     fg_color=BORDA_CAMPO).pack(pady=(0, 12))
 
         # --- Rodapé: "Já tem conta? Entrar" -----------------------------
         rodape = ctk.CTkFrame(form, fg_color="transparent")
@@ -163,7 +169,8 @@ class CadastroView(ctk.CTkToplevel):
         lbl_entrar = ctk.CTkLabel(
             rodape, text=" Entrar",
             text_color=LARANJA, cursor="hand2",
-            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold", underline=True),
+            font=ctk.CTkFont(family="Segoe UI", size=12,
+                             weight="bold", underline=True),
         )
         lbl_entrar.pack(side="left")
         lbl_entrar.bind("<Button-1>", lambda e: self.ao_clicar_voltar())
@@ -182,11 +189,12 @@ class CadastroView(ctk.CTkToplevel):
 
         # Esta checagem é da TELA (o controller não recebe a "confirmação")
         if senha != confirmar:
-            messagebox.showerror("Cadastro", "As senhas não conferem.", parent=self)
+            messagebox.showerror(
+                "Cadastro", "As senhas não conferem.", parent=self)
             return
 
         # Todo o resto (campos vazios, CPF válido, idade...) o controller valida
-        sucesso, mensagem = cadastra_cliente(nome, idade, cpf, cidade, senha)
+        sucesso, mensagem = CadastrarCliente(nome, idade, cpf, cidade, senha)
 
         if sucesso:
             messagebox.showinfo("Cadastro", mensagem, parent=self)
@@ -210,5 +218,6 @@ if __name__ == "__main__":
     raiz.withdraw()  # esconde a janela "pai" vazia
     tela = CadastroView(raiz)
     # Quando a tela de cadastro fechar (X, "Entrar" ou cadastro feito), encerra o programa
-    tela.bind("<Destroy>", lambda e: raiz.destroy() if e.widget is tela else None)
+    tela.bind("<Destroy>", lambda e: raiz.destroy()
+              if e.widget is tela else None)
     raiz.mainloop()
