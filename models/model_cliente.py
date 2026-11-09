@@ -68,5 +68,11 @@ def excluir_db_clientes(id_cliente):
         cx.rollback()
         return False
 
-def buscar_cliente_por_cpf():
-    pass
+def buscar_cliente_por_cpf(cpf):
+    try:
+        cs.execute('''
+                   SELECT * FROM Clientes WHERE cpf = ?
+                   ''', (cpf,))
+        return cs.fetchone()
+    except Exception as e:
+        return None
