@@ -1,7 +1,19 @@
-from models.model_cliente import inserir_db_cliente
-from validate_docbr import CPF
+from models.model_cliente import (
+    inserir_db_cliente,
+    buscar_cliente_por_cpf
+)
 
-def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
+from validate_docbr import CPF
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, VerificationError
+
+#------------------- CRIPTOGRAFIA ----------------------------
+ph = PasswordHasher()
+def gerar_hash_senha(senha):
+    return ph.hash(senha)
+
+#------------------- FUNÇÃO DE CADASTRO ----------------------------
+def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
     """
     Validar dados da View e solicitar cadastro ao Model
 
@@ -50,7 +62,29 @@ def cadastra_cliente(nome, idade, cpf, cidade_origem, senha):
         return False, "A idade deve ser menor que 130."
     #=================== INSERINDO CLIENTE =====================
     try:
-        inserir_db_cliente(nome, idade, cpf, cidade_origem, senha)
+        senha_criptografada = gerar_hash_senha(senha)
+
+        inserir_db_cliente(nome, idade, cpf, cidade_origem, senha_criptogra)
         return True, "Sucesso ao cadastrar cliente."
     except Exception as e:
         return False, f"Erro, ao cadastrar cliente: {e}"
+
+
+#------------------- FUNÇÃO DE LOGIN ----------------------------
+def AutenticarCliente(cpf, senha):
+    # Buscar cliente no banco de dados
+    cliente = buscar_cliente_por_cpf(cpf)
+
+    # verificar se cliente existe
+    if cliente is None:
+        return False, "CPF não encontrado."
+
+    try:
+        ph.verify(cliente[5], senha)
+
+    except VerifyMismatchError:
+        return False, "Senha incorreta."
+    except VerificationError:
+        return False, "Não foi possível verificar a senha."
+
+    return True, "Login realizado com sucesso."

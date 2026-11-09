@@ -19,8 +19,12 @@ def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
     cx.commit()
 
 
-def inserir_db_cliente(nome, idade, cpf, cidade_origem, senha):
-    cs.execute('''INSERT INTO Clientes (nome, idade, cpf, cidade_origem, senha)
-               VALUES (?, ?, ?, ?, ?)''', (nome, idade, cpf, cidade_origem, senha))
-    cx.commit()
+# BUSCA POR CLIENTE
+def buscar_cliente_por_cpf(cpf):
+    cs.execute(
+        'SELECT * FROM Clientes WHERE cpf = ?',
+        (cpf,)
+    )
+
+    return cs.fetchone()
 
