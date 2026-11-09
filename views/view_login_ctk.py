@@ -21,6 +21,7 @@ import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 from PIL import Image
+from views.view_cadastro_cliente import CadastroView
 
 # ----------------------------------------------------------------------
 # CONFIGURAÇÕES GERAIS
@@ -131,7 +132,8 @@ class LoginView(ctk.CTk):
         #
         # A foto e a onda são unidas numa única imagem com o Pillow, porque
         # o CTkLabel não mostra a foto através de um fundo transparente.
-        self.img_quarto = self._montar_imagem_esquerda(largura=420, altura=560, altura_onda=120)
+        self.img_quarto = self._montar_imagem_esquerda(
+            largura=420, altura=560, altura_onda=120)
         self.lbl_foto = ctk.CTkLabel(
             self.painel_esq,
             text="" if self.img_quarto else "[ FOTO DO QUARTO ]\nassets/Terra.png",
@@ -147,13 +149,15 @@ class LoginView(ctk.CTk):
         caminho_onda = os.path.join(ASSETS_DIR, "onda_laranja.png")
 
         if os.path.exists(caminho_foto):
-            base = Image.open(caminho_foto).convert("RGBA").resize((largura, altura))
+            base = Image.open(caminho_foto).convert(
+                "RGBA").resize((largura, altura))
         else:
             # Sem foto ainda: usa um fundo liso como espaço reservado
             base = Image.new("RGBA", (largura, altura), "#E9E4DA")
 
         if os.path.exists(caminho_onda):
-            onda = Image.open(caminho_onda).convert("RGBA").resize((largura, altura_onda))
+            onda = Image.open(caminho_onda).convert(
+                "RGBA").resize((largura, altura_onda))
             # Cola a onda na base da foto respeitando a transparência
             base.alpha_composite(onda, (0, altura - altura_onda))
 
@@ -299,13 +303,10 @@ class LoginView(ctk.CTk):
     # AÇÕES (conecte aqui ao seu controller / banco de dados)
     # ------------------------------------------------------------------
     def ao_clicar_entrar(self):
+        print("MORREU AQUI")
         usuario = self.entry_usuario.get().strip()
         senha = self.entry_senha.get()
 
-<<<<<<< HEAD
-        sucesso, mensagem = AutenticarCliente(cpf, senha)
-        print(mensagem)
-=======
         if not usuario or not senha:
             messagebox.showwarning(
                 "Login", "Preencha o usuário e a senha para continuar.", parent=self)
@@ -317,18 +318,11 @@ class LoginView(ctk.CTk):
         self.autenticado = True
         self.usuario_logado = usuario
         self.destroy()  # fecha o login; o main.py abre o menu principal
->>>>>>> view
 
     def ao_clicar_cadastrar(self):
-        from views.view_cadastro_cliente import CadastroView
+
         CadastroView(self)
 
 
-<<<<<<< HEAD
 app = LoginView()
 app.mainloop()
-=======
-if __name__ == "__main__":
-    app = LoginView()
-    app.mainloop()
->>>>>>> view
