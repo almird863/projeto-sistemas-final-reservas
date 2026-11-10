@@ -48,7 +48,7 @@ def listar_aptos_vagos(somente_vagos=False):
 def listar_aptos_qt_camas(qt_camas):
     try:
         if qt_camas:
-            cs.execute("SELECT * FROM Apartamentos WHERE qt_camas =< ?", (qt_camas,))
+            cs.execute("SELECT * FROM Apartamentos WHERE qt_camas = ?", (qt_camas,))
         else:
             cs.execute("SELECT * FROM Apartamentos")
         return cs.fetchall()
