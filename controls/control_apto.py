@@ -146,3 +146,12 @@ def ExcluirApto(id_apto):
         return False, "ID inválido."
     except Exception as erro:
         return False, f"Erro ao excluir apartamento: {erro}."
+
+        
+# --------------------------------------------- LISTAR APARTAMENTOS
+def ListarAptos(somento_vagos=False):
+    try:
+        resultado = listar_aptos(somente_vagos)
+        return True, resultado
+    except Exception as erro:
+        return False, f"Erro ao listar apartamentos: {erro}."
