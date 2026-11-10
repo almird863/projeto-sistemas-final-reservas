@@ -9,10 +9,10 @@
 * **Instrutor:** Everton Azevedo
 
 ## Equipe Técnica
-* Almir
-* Derek
-* Fernandes
-* Wallace
+* Almir - Models
+* Derek - Controls
+* Fernandes - Analista Doc
+* Wallace - Views
 
 ---
 
