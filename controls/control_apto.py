@@ -92,7 +92,7 @@ def AtualizarApto(coluna, novo_valor, id_apto):
             novo_valor = str(novo_valor).strip()
 
         # validações
-        if coluna == "preco_pessoa" and novo_valor <= 0:
+        if coluna == "preco_pessoa" and novo_valor < 0:
             return False, "Erro."
     except (ValueError, TypeError) as erro:
         return False, f"Valor inválido: {erro}."
