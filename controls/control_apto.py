@@ -95,7 +95,7 @@ def AtualizarApto(coluna, novo_valor, id_apto):
         if coluna == "preco_pessoa" and novo_valor < 0:
             return False, "O preço não pode ser negativo."
 
-        if coluna == numeracao and novo_valor < 0:
+        if coluna == "numeracao" and novo_valor <= 0:
             return False, "A numeração deve ser positiva."
     
     except (ValueError, TypeError) as erro:
