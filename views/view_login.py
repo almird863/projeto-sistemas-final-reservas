@@ -23,7 +23,7 @@ import customtkinter as ctk
 from PIL import Image
 from views.view_cadastro_cliente import CadastroView
 from controls.control_cliente import AutenticarCliente
-
+from views.componentes import centralizar_janela
 # ----------------------------------------------------------------------
 # CONFIGURAÇÕES GERAIS
 # ----------------------------------------------------------------------
@@ -67,7 +67,7 @@ class LoginView(ctk.CTk):
         # JANELA
         # --------------------------------------------------------------
         self.title("Sistema de Reservas - Hotel")
-        self.geometry("860x600")
+        centralizar_janela(self, 860, 600)
         self.resizable(False, False)
         self.configure(fg_color=FUNDO_DIREITO)
 

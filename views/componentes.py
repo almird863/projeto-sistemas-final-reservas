@@ -148,3 +148,16 @@ def criar_campo(parent, placeholder, icone_arquivo, icone_fallback, mostrar=None
     )
     entry.pack(side="left", fill="both", expand=True, padx=(4, 8), pady=3)
     return entry
+
+def centralizar_janela(janela, largura, altura):
+    janela.update_idletasks()
+    # Pega a resolução do monitor do usuário
+    largura_tela = janela.winfo_screenwidth()
+    altura_tela = janela.winfo_screenheight()
+
+    # Calcula a posição x e y para ficar no meio
+    pos_x = int((largura_tela - largura) / 2)
+    pos_y = int((altura_tela - altura) / 2)
+
+    # Aplica o tamanho e a posição exata
+    janela.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')

@@ -16,13 +16,13 @@ Para adicionar uma tela nova (Reservas, Apartamentos...), basta:
 A sidebar não precisa ser alterada.
 """
 
-from tkinter import messagebox
 
 import customtkinter as ctk
 
+from tkinter import messagebox
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO, TEXTO_CINZA,
-    carregar_imagem, criar_barra_titulo, montar_imagem_lateral,
+    carregar_imagem, criar_barra_titulo, montar_imagem_lateral, centralizar_janela,
 )
 
 # Cores/fonte usadas só aqui (as demais vêm do componentes.py)
@@ -148,7 +148,7 @@ class JanelaPrincipal(ctk.CTk):
         self.ao_sair = ao_sair
 
         self.title("Sistema de Reservas - Hotel")
-        self.geometry("1000x620")
+        centralizar_janela(self, 1000, 620)
         self.minsize(900, 560)
         self.configure(fg_color=FUNDO_DIREITO)
 
