@@ -127,3 +127,22 @@ def AtualizarApto(coluna, novo_valor, id_apto):
 
     except Exception as erro:
         return False, f"Erro ao atualizar apartamento: {erro}."
+
+
+# --------------------------------------------- EXLCUIR APARTAMENTOS
+def ExcluirApto(id_apto):
+    try:
+        id_apto = int(id_apto)
+
+        if id_apto <= 0:
+            return False, "ID inválido."
+
+        resultado = excluir_db_apto(id_apto)
+        if resultado:
+            return True, "Apartamento excluído com sucesso."
+    
+        return False, "Não foi possível excluir o apartamento."        
+    except (ValueError, TypeError):
+        return False, "ID inválido."
+    except Exception as erro:
+        return False, f"Erro ao excluir apartamento: {erro}."
