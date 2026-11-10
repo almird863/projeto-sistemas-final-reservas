@@ -93,9 +93,13 @@ def AtualizarApto(coluna, novo_valor, id_apto):
 
         # validações
         if coluna == "preco_pessoa" and novo_valor < 0:
-            return False, "Erro."
+            return False, "O preço não pode ser negativo."
+
+        if numeracao > 0:
+            return False, "A numeração deve ser positiva."
+    
     except (ValueError, TypeError) as erro:
         return False, f"Valor inválido: {erro}."
 
-    # Ainda falta validar os valores convertidos
+
     # e chamar atualizar_db_apto().
