@@ -34,7 +34,7 @@ def buscar_apto(numero):
         return None
 
 
-def listar_aptos(somente_vagos=False):
+def listar_aptos_vagos(somente_vagos=False):
     try:
         if somente_vagos:
             cs.execute("SELECT * FROM Apartamentos WHERE vago = 1")
@@ -44,7 +44,61 @@ def listar_aptos(somente_vagos=False):
     except sqlite3.Error as e:
         print(f"Erro ao listar apartamentos: {e}")
         return []
+    
+def listar_aptos_qt_camas(qt_camas):
+    try:
+        if qt_camas:
+            cs.execute("SELECT * FROM Apartamentos WHERE qt_camas =< ?", (qt_camas,))
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar apartamentos: {e}")
+        return []
 
+def listar_aptos_pet_friendly(pet=False):
+    try:
+        if pet:
+            cs.execute("SELECT * FROM Apartamentos WHERE pet_friendly = 1")
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar apartamentos: {e}")
+        return []
+    
+def listar_aptos_vista_mar(mar=False):
+    try:
+        if mar:
+            cs.execute("SELECT * FROM Apartamentos WHERE vista_mar = 1")
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar apartamentos: {e}")
+        return []
+    
+def listar_aptos_frigobar(frigobar=False):
+    try:
+        if frigobar:
+            cs.execute("SELECT * FROM Apartamentos WHERE frigobar = 1")
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar apartamentos: {e}")
+        return []
+    
+def listar_aptos_mesa_sinuca(sinuca=False):
+    try:
+        if sinuca:
+            cs.execute("SELECT * FROM Apartamentos WHERE mesa_sinuca = 1")
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar apartamentos: {e}")
+        return []
 
 def inserir_db_apto(tipo, numeracao, vago, preco_pessoa, limite_pessoa):
     try:
