@@ -7,6 +7,8 @@ from models.model_apto import (
     COLUNAS_PERMITIDAS
 )
 
+import math
+
 def _converter_booleano(valor):
     if isinstance(valor, bool):
         return int(valor)
@@ -38,6 +40,8 @@ def CadastrarApto(tipo, numeracao, vago, preco_pessoa, limite_pessoa):
         numeracao = int(numeracao)
         vago = _converter_booleano(vago)
         preco_pessoa = float(preco_pessoa)
+        if not math.isinfinite(preco_pessoa):
+            return False, "O preço deve ser um número finito."
         limite_pessoa = int(limite_pessoa)
         
         if not tipo:
@@ -94,6 +98,9 @@ def AtualizarApto(coluna, novo_valor, id_apto):
         # validações
         if coluna == "preco_pessoa" and novo_valor < 0:
             return False, "O preço não pode ser negativo."
+
+        if coluna == "preco_pessoa" and not math.isinfinite(novo_valor):
+            return False, "O preço deve ser um número finito."
 
         if coluna == "numeracao" and novo_valor <= 0:
             return False, "A numeração deve ser positiva."
