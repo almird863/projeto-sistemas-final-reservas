@@ -114,7 +114,7 @@ def AtualizarApto(coluna, novo_valor, id_apto):
             return False, "O número de pessoas deve ser positivo."
 
         if coluna == "qt_camas" and novo_valor < 0:
-            return False, "O número de camas deve ser positivo."
+            return False, "O número de camas não pode ser negativo."
 
         if coluna == "tipo" and not novo_valor:
             return False, "O tipo é obrigatório."
