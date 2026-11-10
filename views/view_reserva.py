@@ -216,9 +216,44 @@ class TelaReservas(TelaBase):
 
         # Referências de imagens para evitar garbage collection do Tkinter
         self._imagens_cache = []
+        # Referências dos labels das ondas (para poder elevá-las ao topo do z-order)
+        self._lbl_onda_sup = None
+        self._lbl_onda_inf = None
 
+        # Corpo e cabeçalho são criados ANTES das ondas,
+        # para que as ondas fiquem no topo da pilha de renderização
         self._criar_cabecalho()
         self._criar_corpo()
+
+        # Ondas decorativas DEPOIS do corpo — assim ficam na frente de tudo
+        self._adicionar_onda_superior()
+        self._adicionar_onda_inferior()
+
+        # Garantia extra: eleva as ondas após o Tkinter terminar o layout
+        self.after(50, self._elevar_ondas)
+
+    def _adicionar_onda_superior(self):
+        """Onda laranja/azul decorativa no canto superior direito."""
+        img_onda = carregar_imagem("onda_reserva_superior.png", (380, 75))
+        if img_onda:
+            self._imagens_cache.append(img_onda)
+            self._lbl_onda_sup = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
+            self._lbl_onda_sup.place(relx=1.0, y=0, anchor="ne")
+
+    def _adicionar_onda_inferior(self):
+        """Onda laranja/azul decorativa no canto inferior direito."""
+        img_onda = carregar_imagem("onda_reserva_inferior.png", (380, 65))
+        if img_onda:
+            self._imagens_cache.append(img_onda)
+            self._lbl_onda_inf = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
+            self._lbl_onda_inf.place(relx=1.0, rely=1.0, anchor="se")
+
+    def _elevar_ondas(self):
+        """Eleva os labels das ondas ao topo do z-order após o layout ser concluído."""
+        if self._lbl_onda_sup:
+            self._lbl_onda_sup.lift()
+        if self._lbl_onda_inf:
+            self._lbl_onda_inf.lift()
 
     def ao_exibir(self):
         """Ao exibir a tela, carrega/atualiza os apartamentos."""
