@@ -100,6 +100,9 @@ def AtualizarApto(coluna, novo_valor, id_apto):
 
         if coluna == "limite_pessoa" and novo_valor <= 0:
             return False, "O número de pessoas deve ser positivo."
+
+        if coluna == "qt_camas" and novo_valor <= 0:
+            return False, "O número de camas deve ser positivo."
     
     except (ValueError, TypeError) as erro:
         return False, f"Valor inválido: {erro}."
