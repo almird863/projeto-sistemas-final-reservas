@@ -6,7 +6,7 @@ Como rodar (a partir da raiz do projeto):
     python main.py
 """
 
-from views.view_login_ctk import LoginView
+from views.view_login import LoginView
 from views.view_menu_principal import JanelaPrincipal
 
 
