@@ -79,6 +79,11 @@ def AtualizarApto(coluna, novo_valor, id_apto):
         return False, "Valor não pode ser vazio."
 
     try:
+        id_apto = int(id_apto)
+        
+        if id_apto <= 0:
+            return False, "ID inválido."
+        
         # conversões
         if coluna == "preco_pessoa":
             novo_valor = float(novo_valor)
@@ -149,9 +154,26 @@ def ExcluirApto(id_apto):
 
         
 # --------------------------------------------- LISTAR APARTAMENTOS
-def ListarAptos(somento_vagos=False):
+def ListarAptos(somente_vagos=False):
     try:
         resultado = listar_aptos(somente_vagos)
         return True, resultado
     except Exception as erro:
         return False, f"Erro ao listar apartamentos: {erro}."
+
+
+# --------------------------------------------- BUSCAR APARTAMENTOS
+def BuscarApto(numero):
+    try:
+        numero = int(numero)
+        if numero <= 0:
+            return False, "Numeração inválida."
+
+        resultado = buscar_apto(numero)
+
+        if resultado:
+            return True, resultado
+
+        return False, "Apartamento não encontrado."
+    except Exception as erro:
+        return False, f"Erro ao buscar apartamento: {erro}."
