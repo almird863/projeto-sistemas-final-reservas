@@ -103,9 +103,14 @@ def AtualizarApto(coluna, novo_valor, id_apto):
 
         if coluna == "qt_camas" and novo_valor < 0:
             return False, "O número de camas deve ser positivo."
+
+        # atualizar
+        resultado = atualizar_db_apto(coluna, novo_valor, id_apto)
+
+        if resultado:
+            return True, "Apartamento atualizado com sucesso."
+
+        return False, "Não foi possível atualizar o apartamento."
     
     except (ValueError, TypeError) as erro:
         return False, f"Valor inválido: {erro}."
-
-
-    # e chamar atualizar_db_apto().
