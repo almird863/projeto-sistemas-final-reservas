@@ -241,11 +241,24 @@ class TelaReservas(TelaBase):
             self._lbl_onda_sup.place(relx=1.0, y=0, anchor="ne")
 
     def _adicionar_onda_inferior(self):
-        """Onda laranja/azul decorativa no canto inferior direito."""
+        """
+        Onda laranja/azul decorativa no canto inferior direito.
+
+        IMPORTANTE: esta label é filha do card BRANCO de apartamentos
+        (self.card_aptos), e não da tela inteira (self).
+        No CustomTkinter, fg_color="transparent" numa CTkLabel não faz
+        composição real com o que está visualmente atrás dela — ele
+        apenas herda a cor do seu PAI DIRETO. Como self.card_aptos é
+        branco e self (a tela) é cinza-azulado (FUNDO_DIREITO), colocar
+        a label dentro de "self" fazia a parte "transparente" do PNG
+        aparecer como uma caixa cinza-azulada sobre o card branco.
+        """
         img_onda = carregar_imagem("onda_reserva_inferior.png", (380, 65))
-        if img_onda:
+        if img_onda and hasattr(self, "card_aptos"):
             self._imagens_cache.append(img_onda)
-            self._lbl_onda_inf = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
+            self._lbl_onda_inf = ctk.CTkLabel(
+                self.card_aptos, text="", image=img_onda, fg_color="transparent"
+            )
             self._lbl_onda_inf.place(relx=1.0, rely=1.0, anchor="se")
 
     def _elevar_ondas(self):
