@@ -20,7 +20,7 @@ def _converter_booleano(valor):
         if valor in ("sim", "1", "true"):
             return 1
         
-        if valor in ("não", "nao", 0, "false"):
+        if valor in ("não", "nao", "0", "false"):
             return 0
 
     raise ValueError("Valor booleano inválido.")
@@ -104,6 +104,9 @@ def AtualizarApto(coluna, novo_valor, id_apto):
         if coluna == "qt_camas" and novo_valor < 0:
             return False, "O número de camas deve ser positivo."
 
+        if coluna == "tipo" and not novo_valor:
+            return False, "O tipo é obrigatório."
+
         # atualizar
         resultado = atualizar_db_apto(coluna, novo_valor, id_apto)
 
@@ -114,3 +117,6 @@ def AtualizarApto(coluna, novo_valor, id_apto):
     
     except (ValueError, TypeError) as erro:
         return False, f"Valor inválido: {erro}."
+
+    except Exception as erro:
+        return False, f"Erro ao atualizar apartamento: {erro}."
