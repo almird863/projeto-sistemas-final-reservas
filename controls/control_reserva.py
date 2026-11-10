@@ -12,7 +12,7 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
             return False, "Preencha todos os campos."
 
         qt_pessoas = int(qt_pessoas)
-        resultado, valor = inserir_db_resreva(
+        resultado, valor = inserir_db_reserva(
             id_cliente, id_apto,
             data_entrada, data_saida,
             qt_pessoas
