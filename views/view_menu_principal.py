@@ -16,13 +16,13 @@ Para adicionar uma tela nova (Reservas, Apartamentos...), basta:
 A sidebar não precisa ser alterada.
 """
 
-from tkinter import messagebox
 
 import customtkinter as ctk
 
+from tkinter import messagebox
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO, TEXTO_CINZA,
-    carregar_imagem, criar_barra_titulo, montar_imagem_lateral,
+    carregar_imagem, criar_barra_titulo, montar_imagem_lateral, centralizar_janela,
 )
 
 # Cores/fonte usadas só aqui (as demais vêm do componentes.py)
@@ -92,7 +92,7 @@ class TelaInicio(TelaBase):
     def _criar_banner(self):
         # >>> IMAGEM: assets/lobby.jpg (700x190). Enquanto não existir, usa a
         # foto do quarto com a onda; se nem ela existir, um bloco azul.
-        imagem = carregar_imagem("lobby.jpg", (700, 190)) or montar_imagem_lateral(700, 190, altura_onda=60)
+        imagem = carregar_imagem("banner_interno.png", (700, 200)) or montar_imagem_lateral(700, 190, altura_onda=60)
         if imagem:
             self.img_banner = imagem  # guarda a referência
             return ctk.CTkLabel(self, text="", image=imagem)
@@ -148,7 +148,7 @@ class JanelaPrincipal(ctk.CTk):
         self.ao_sair = ao_sair
 
         self.title("Sistema de Reservas - Hotel")
-        self.geometry("1000x620")
+        centralizar_janela(self, 1000, 620)
         self.minsize(900, 560)
         self.configure(fg_color=FUNDO_DIREITO)
 
@@ -186,7 +186,7 @@ class JanelaPrincipal(ctk.CTk):
             )
 
         # Empurra o "Sair" para ficar após os outros, com espaço próprio
-        self._botoes["sair"] = self._botao_sidebar("🚪   Sair", self._sair)
+        self._botoes["sair"] = self._botao_sidebar("📤  Sair", self._sair)
 
     def _botao_sidebar(self, texto, comando):
         botao = ctk.CTkButton(
@@ -220,7 +220,7 @@ class JanelaPrincipal(ctk.CTk):
         pelas classes reais conforme forem ficando prontas."""
         self.registrar_tela("inicio", lambda: TelaInicio(self.container, self))
         self.registrar_tela(
-            "reservas", lambda: TelaEmConstrucao(self.container, self, "Reservas"))
+            "reservas", lambda: __import__("views.view_reserva", fromlist=["TelaReservas"]).TelaReservas(self.container, self))
         self.registrar_tela(
             "apartamentos", lambda: TelaEmConstrucao(self.container, self, "Apartamentos"))
         self.registrar_tela(

@@ -16,7 +16,7 @@ import customtkinter as ctk
 
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, FUNDO_DIREITO, BORDA_CAMPO, TEXTO_CINZA,
-    criar_barra_titulo, criar_campo, montar_imagem_lateral,
+    criar_barra_titulo, criar_campo, montar_imagem_lateral, centralizar_janela,
 )
 
 # ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ class CadastroView(ctk.CTkToplevel):
         # JANELA
         # --------------------------------------------------------------
         self.title("Cadastro - Sistema de Reservas - Hotel")
-        self.geometry(f"{LARGURA_JANELA}x{ALTURA_JANELA}")
+        centralizar_janela(self, LARGURA_JANELA, ALTURA_JANELA)
         self.resizable(False, False)
         self.configure(fg_color=FUNDO_DIREITO)
 
