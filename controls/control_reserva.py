@@ -23,7 +23,7 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
         if id_cliente <= 0 or id_apto <= 0 or qt_pessoas <= 0:
             return False, "IDs e quantidade de pessoas devem ser positivos."
 
-        # insersão no banco de dados
+        # inserção no banco de dados
         resultado, valor = inserir_db_reserva(
             id_cliente, id_apto,
             data_entrada, data_saida,
@@ -69,3 +69,31 @@ def AtualizarReserva(id_reserva, data_entrada, data_saida, qt_pessoas):
     except Exception as erro:
         return False, f"Erro ao atualizar reserva: {erro}."
 
+
+#-------------------------------------------------- BUSCAR RESERVA
+def BuscarReserva(id_cliente):
+    try:
+        # validar preenchimento
+        if id_cliente is None or not str(id_cliente).strip():
+            return False, "Informe o ID do cliente."
+
+        # conversão
+        id_cliente = int(id_cliente)
+
+        if id_cliente <= 0:
+            return False, "O ID do cliente deve ser positivo."
+
+        resultado = buscar_db_reserva(id_cliente)
+
+        if resultado:
+            return True, resultado
+
+        return False, "Nenhuma reserva encontrada."
+
+    except ValueError as erro:
+        return False, str(erro)
+    except Exception as erro:
+        return False, f"Erro ao buscar reserva: {erro}."
+
+
+#-------------------------------------------------- BUSCAR RESERVA
