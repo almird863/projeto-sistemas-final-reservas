@@ -1,0 +1,2 @@
+Instalar a dependência dele: `pip install validate-docbr`, usada na validação de CPF.
+Rodar sempre a partir da raiz do projeto: `python -m views.view_login_ctk`. Rodar de dentro da pasta views quebra os imports e o caminho do banco, que é relativo.

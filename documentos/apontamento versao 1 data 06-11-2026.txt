@@ -1,0 +1,32 @@
+Objetivo da aplicação	
+	- Objetivo apresentado, mas pode ser mais específico.
+	- A proposta deve ser tratada como um sistema desktop de atendimento hoteleiro desenvolvido em Python.
+
+Problema que será resolvido	
+	- Problema da demora no atendimento bem identificado.
+
+Público-alvo
+	- Público bem segmentado.
+
+Funcionalidades previstas	
+	- Existem funcionalidades, mas precisam ser detalhadas. O principal problema é que a proposta está muito ampla. No objetivo, é mencionado: Tirar dúvidas. Solicitar serviços. Gerenciar reservas. Realizar check-in de forma autônoma.  Atender em tempo real. Entretanto, na descrição das funcionalidades, o foco está principalmente no atendimento por chat. Isso cria uma diferença entre aquilo que o sistema promete fazer e aquilo que efetivamente está planejado para ser desenvolvido é preciso definir claramente o que será realmente implementado e o que ficará apenas como possibilidade de expansão futura.
+
+	-Boas ideias, mas precisa transformar essas ideias em funcionalidades tecnicamente definidas.
+	
+	-Sugestao de funcionalidades
+		- Tela de login: autenticação de atendentes e administradores.
+		- Menu principal: acesso às funcionalidades do sistema.
+		- Cadastro de hóspedes: nome, telefone, e-mail e identificação.
+		- Gerenciamento de atendimentos: abertura, consulta, edição e encerramento de chamados.
+		- Chat interno: troca de mensagens entre hóspede simulado e atendente, ou entre interfaces do sistema.
+		- FAQ automatizado: perguntas cadastradas com respostas automáticas por palavras-chave ou categorias.
+		- Painel administrativo: gerenciamento de usuários e atendimentos.
+		- Histórico: armazenamento e consulta das conversas.
+		- Relatórios: quantidade de atendimentos, status e avaliações.
+		
+
+Esboço da interface	
+	- Não foi apresentado desenho das telas ou do menu. (imagens de referencias tbm interessante para ser apresentadas no documento)
+
+Tecnologias utilizadas	
+	- Python e SQLite são mencionados, mas falta detalhamento. (Bando de dados, Bibliotecas, etc)
