@@ -24,6 +24,7 @@ from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO, TEXTO_CINZA,
     carregar_imagem, criar_barra_titulo, montar_imagem_lateral, centralizar_janela,
 )
+from views.view_usuarios import ViewUsuarios
 
 
 # Cores/fonte usadas só aqui (as demais vêm do componentes.py)
@@ -259,6 +260,12 @@ class JanelaPrincipal(ctk.CTk):
 
 
 
+
+def abrir_perfil(self):
+    ViewUsuarios(
+        usuario_logado=self.usuario_logado,
+        voltar_callback=self.focus_set
+    )
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("light")
