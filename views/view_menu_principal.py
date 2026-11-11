@@ -224,7 +224,7 @@ class JanelaPrincipal(ctk.CTk):
         self.registrar_tela(
             "reservas", lambda: __import__("views.view_reserva", fromlist=["TelaReservas"]).TelaReservas(self.container, self))
         self.registrar_tela(
-            "apartamentos", lambda: TelaEmConstrucao(self.container, self, "Apartamentos"))
+            "apartamentos", lambda: __import__("views.view_apartamentos", fromlist=["TelaApartamentos"]).TelaApartamentos(self.container, self))
         self.registrar_tela(
             "usuarios", lambda: __import__("views.view_usuarios", fromlist=["TelaUsuarios"]).TelaUsuarios(self.container, self))
         self.registrar_tela(
