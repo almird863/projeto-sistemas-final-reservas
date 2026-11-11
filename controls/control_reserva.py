@@ -113,3 +113,23 @@ def ListarReservas():
 
 
 #-------------------------------------------------- DELETAR RESERVAS
+def DeletarReserva(id_reserva):
+    try:
+        if id_reserva is None or not str(id_reserva).strip():
+            return False, "Informe o ID da reserva."
+
+        id_reserva = int(id_reserva)
+        
+        if id_reserva <= 0:
+            return False, "O ID da reserva deve ser positivo."
+        
+        resultado = deletar_db_reserva(id_reserva)
+        if resultado:
+            return True, "Reserva deletada com sucesso."
+
+        return False, "Reserva não encontrada."
+
+    except ValueError as erro:
+        return False, str(erro)
+    except Exception as erro:
+        return False, f"Erro ao deletar reserva: {erro}."
