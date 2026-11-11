@@ -15,7 +15,7 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
         if any(campo is None or not str(campo).strip() for campo in campos):
             return False, "Preencha todos os campos."
 
-        # conversao
+        # conversão
         id_cliente = int(id_cliente)
         id_apto = int(id_apto)
         qt_pessoas = int(qt_pessoas)
@@ -23,7 +23,7 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
         if id_cliente <= 0 or id_apto <= 0 or qt_pessoas <= 0:
             return False, "IDs e quantidade de pessoas devem ser positivos."
 
-        # insersao no banco de dados
+        # insersão no banco de dados
         resultado, valor = inserir_db_reserva(
             id_cliente, id_apto,
             data_entrada, data_saida,
@@ -38,4 +38,34 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
     except Exception as erro:
         return False, f"Erro ao cadastrar reserva: {erro}"
 
-#--------------------------------------------------
+#-------------------------------------------------- ATUALIZAR RESERVA
+def AtualizarReserva(id_reserva, data_entrada, data_saida, qt_pessoas):
+    try:
+        # validar preenchimento
+        campos = [id_reserva, data_entrada, data_saida, qt_pessoas]
+        
+        if any(campo is None or not str(campo).strip() for campo in campos):
+            return False, "Preencha todos os campos."
+        
+        # conversão
+        id_reserva = int(id_reserva)
+        qt_pessoas = int(qt_pessoas)
+
+
+        if id_reserva <= 0 or qt_pessoas <= 0:
+            return False, "ID da reserva e quantidade de pessoas devem ser positivos."
+        
+        resultado, valor = atualizar_db_reserva(
+            id_reserva, data_entrada, data_saida, qt_pessoas
+        )
+
+        if resultado:
+            return True, f"Reserva atualizada! Valor total: R${valor:.2f}"
+
+        return False, "Não foi possível atualizar a reserva."
+
+    except ValueError as erro:
+        return False, str(erro)
+    except Exception as erro:
+        return False, f"Erro ao atualizar reserva: {erro}."
+
