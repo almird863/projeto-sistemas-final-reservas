@@ -96,4 +96,20 @@ def BuscarReserva(id_cliente):
         return False, f"Erro ao buscar reserva: {erro}."
 
 
-#-------------------------------------------------- BUSCAR RESERVA
+#-------------------------------------------------- LISTAR RESERVAS
+def ListarReservas():
+    try:
+        resultado = listar_db_reservas()
+
+        if not resultado:
+            return False, "Nenhuma reserva encontrada."
+
+        return True, resultado
+
+    except ValueError as erro:
+        return False, str(erro)
+    except Exception as erro:
+        return False, f"Erro ao listar reservas: {erro}"
+
+
+#-------------------------------------------------- DELETAR RESERVAS
