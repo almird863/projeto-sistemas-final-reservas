@@ -31,16 +31,29 @@ def buscar_apto(numero):
         return cs.fetchone()
     except sqlite3.Error as e:
         print(f"Erro ao buscar apartamento: {e}")
-        return None
+        return []
+
+def listar_aptos(somente_vagos=False):
+    try:
+        if somente_vagos:
+            cs.execute("SELECT * FROM Apartamentos WHERE vago = 1")
+            return cs.fetchall()
+        else:
+            cs.execute("SELECT * FROM Apartamentos")
+            return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao buscar apartamento: {e}")
+        return []
 
 
 def listar_aptos_vagos(somente_vagos=False):
     try:
         if somente_vagos:
             cs.execute("SELECT * FROM Apartamentos WHERE vago = 1")
+            return cs.fetchall()
         else:
             cs.execute("SELECT * FROM Apartamentos")
-        return cs.fetchall()
+            return cs.fetchall()
     except sqlite3.Error as e:
         print(f"Erro ao listar apartamentos: {e}")
         return []
