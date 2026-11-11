@@ -21,7 +21,8 @@ def criar_db_aptos():
                 qt_camas INTEGER NOT NULL DEFAULT 1 CHECK (qt_camas > 0),
                 vista_mar INTEGER NOT NULL DEFAULT 0 CHECK (vista_mar IN (0, 1)),
                 frigobar INTEGER NOT NULL DEFAULT 0 CHECK (frigobar IN (0, 1)),
-                mesa_sinuca INTEGER NOT NULL DEFAULT 0 CHECK (mesa_sinuca IN (0, 1)))''')
+                mesa_sinuca INTEGER NOT NULL DEFAULT 0 CHECK (mesa_sinuca IN (0, 1)),
+                acessivel INTEGER NOT NULL DEFAULT 0 CHECK (acessivel IN (0, 1)))''')
     cx.commit()
 
 

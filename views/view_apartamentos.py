@@ -35,9 +35,9 @@ TEXTO_ESMAECIDO = "#8A93A6"
 
 class TelaApartamentos(TelaBase):
     CAMPOS = ("id", "tipo", "numeracao", "vago", "preco_pessoa", "limite_pessoa",
-              "pet_friendly", "qt_camas", "vista_mar", "frigobar", "mesa_sinuca")
+              "pet_friendly", "qt_camas", "vista_mar", "frigobar", "mesa_sinuca", "acessivel")
     EXTRAS = (("pet_friendly", "Pet friendly"), ("vista_mar", "Vista mar"),
-              ("frigobar", "Frigobar"), ("mesa_sinuca", "Mesa de sinuca"))
+              ("frigobar", "Frigobar"), ("mesa_sinuca", "Mesa de sinuca"), ("acessivel", "Acessível"))
 
     def __init__(self, master, app):
         super().__init__(master, app)
@@ -106,7 +106,7 @@ class TelaApartamentos(TelaBase):
         ctk.CTkButton(
             card, text="Limpar filtros", height=28, font=(FONTE, 12, "bold"),
             fg_color=AZUL_ESCURO, hover_color=AZUL_HOVER, command=self._limpar_filtros,
-        ).grid(row=2, column=4, columnspan=2, sticky="e", padx=8, pady=(8, 10))
+        ).grid(row=2, column=5, sticky="e", padx=8, pady=(8, 10))
         return card
 
     def _filtro_menu(self, card, col, titulo, valores):
