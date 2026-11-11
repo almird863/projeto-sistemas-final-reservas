@@ -7,10 +7,11 @@ from validate_docbr import CPF
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError
 
+from models.model_apto import buscar_apto # para fazer verificação de apartamento
+
 #------------------- CRIPTOGRAFIA ----------------------------
 
 ph = PasswordHasher()
-
 
 def gerar_hash_senha(senha):
     return ph.hash(senha)
@@ -35,6 +36,21 @@ def DeslogarCliente():
     global cliente_logado
     cliente_logado = None
 
+
+def BuscarIdApartamento(numero):
+    try:
+        numero = int(numero)
+    except (ValueError, TypeError):
+        return None
+
+    apto = buscar_apto(numero)
+
+    if apto is None:
+        return None
+
+    return apto[0]
+
+# uso: id_apto = BuscarIdApartamento(numero_escolhido)
 
 #------------------- FUNÇÃO DE CADASTRO ----------------------------
 
