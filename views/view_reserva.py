@@ -5,7 +5,7 @@ quanto executável de forma independente para testes.
 
 Seguindo o design da imagem:
 - Topo: Ícone e Título "Reservas - Confira a disponibilidade e faça sua reserva"
-- Painel Esquerdo: "Filtros de Busca" (Data Entrada, Data Saída com Calendário Popup, Tipo de Apto, Botão Buscar)
+- Painel Esquerdo: "Filtros de Busca" (Data Entrada, Data Saída com Calendário Popup, Tipo de Apto, Qtd Pessoas, Botão Buscar)
 - Painel Direito: "Apartamentos Disponíveis" (Cards com foto, tipo, descrição, diária e botão Reservar)
 """
 
@@ -31,6 +31,13 @@ except ImportError:
 
         def ao_exibir(self):
             pass
+
+# Import do Controller de Reservas (se disponível)
+try:
+    from controls.control_reserva import CadastrarReserva
+except Exception:
+    def CadastrarReserva(*args, **kwargs):
+        return False, "Controller de reservas não disponível."
 
 # Import do Model/Controller de Apartamentos (se disponível)
 try:
@@ -217,7 +224,7 @@ class TelaReservas(TelaBase):
         super().__init__(master, app, **kwargs)
         self.numero_filtro = getattr(app, "apartamento_selecionado", None)
         if app is not None:
-            app.apartamento_selecionado = None  
+            app.apartamento_selecionado = None
         # Referências de imagens para evitar garbage collection do Tkinter
         self._imagens_cache = []
         # Referências dos labels das ondas (para poder elevá-las ao topo do z-order)
@@ -378,10 +385,53 @@ class TelaReservas(TelaBase):
             text_color="#1E293B",
             height=38
         )
-        self.combo_tipo.pack(fill="x", pady=(0, 16))
+        self.combo_tipo.pack(fill="x", pady=(0, 10))
         self.combo_tipo.set("Todos")
 
-        # 4. Botão Buscar Disponibilidade (Laranja com Lupa)
+        # 4. Quantidade de Pessoas
+        ctk.CTkLabel(
+            conteudo, text="Quantidade de Pessoas:",
+            font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
+            text_color=AZUL_ESCURO
+        ).pack(anchor="w", pady=(0, 2))
+
+        frame_qt = ctk.CTkFrame(
+            conteudo, fg_color="white", corner_radius=8,
+            border_width=1, border_color=BORDA_CAMPO, height=38
+        )
+        frame_qt.pack(fill="x", pady=(0, 10))
+        frame_qt.pack_propagate(False)
+
+        btn_menos = ctk.CTkButton(
+            frame_qt, text="−", width=32, height=32,
+            fg_color="transparent", hover_color="#E2E8F0",
+            text_color=AZUL_ESCURO, font=(FONTE, 16, "bold"),
+            cursor="hand2",
+            command=self._decrementar_pessoas
+        )
+        btn_menos.pack(side="left", padx=(4, 0), pady=2)
+
+        self.entry_qt_pessoas = ctk.CTkEntry(
+            frame_qt,
+            font=ctk.CTkFont(family=FONTE, size=14, weight="bold"),
+            fg_color="white", border_width=0,
+            text_color=AZUL_ESCURO,
+            justify="center",
+            width=50
+        )
+        self.entry_qt_pessoas.insert(0, "1")
+        self.entry_qt_pessoas.pack(side="left", fill="both", expand=True, pady=3)
+
+        btn_mais = ctk.CTkButton(
+            frame_qt, text="+", width=32, height=32,
+            fg_color="transparent", hover_color="#E2E8F0",
+            text_color=AZUL_ESCURO, font=(FONTE, 16, "bold"),
+            cursor="hand2",
+            command=self._incrementar_pessoas
+        )
+        btn_mais.pack(side="right", padx=(0, 4), pady=2)
+
+        # 5. Botão Buscar Disponibilidade (Laranja com Lupa)
         # >>> IMAGEM: coloque 'icone_lupa.png' (18x18) em views/assets/ <<<
         img_lupa = carregar_imagem("icone_lupa.png", (18, 18))
         self.btn_buscar = ctk.CTkButton(
@@ -468,7 +518,7 @@ class TelaReservas(TelaBase):
             font=ctk.CTkFont(family=FONTE, size=14, weight="bold"),
             text_color="white"
         ).pack(side="left", padx=14)
-        
+
         self.btn_ver_todos = ctk.CTkButton(
             barra_tit, text="Ver todos", width=90, height=28,
             font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
@@ -672,25 +722,97 @@ class TelaReservas(TelaBase):
         self.numero_filtro = None
         self.renderizar_apartamentos(self.combo_tipo.get())
 
+    def _incrementar_pessoas(self):
+        """Aumenta a quantidade de pessoas em 1."""
+        try:
+            valor = int(self.entry_qt_pessoas.get())
+        except ValueError:
+            valor = 0
+        self.entry_qt_pessoas.delete(0, "end")
+        self.entry_qt_pessoas.insert(0, str(valor + 1))
+
+    def _decrementar_pessoas(self):
+        """Diminui a quantidade de pessoas em 1 (mínimo 1)."""
+        try:
+            valor = int(self.entry_qt_pessoas.get())
+        except ValueError:
+            valor = 2
+        novo = max(1, valor - 1)
+        self.entry_qt_pessoas.delete(0, "end")
+        self.entry_qt_pessoas.insert(0, str(novo))
+
+    def _converter_data(self, data_str):
+        """Converte DD/MM/AAAA -> AAAA-MM-DD (formato esperado pelo model)."""
+        try:
+            return datetime.strptime(data_str, "%d/%m/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            return None
+
     def ao_clicar_reservar(self, dados_apto):
-        """Dispara o fluxo de confirmação de reserva."""
-        data_in = self.entry_entrada.get().strip()
-        data_out = self.entry_saida.get().strip()
+        """Dispara o fluxo de confirmação e cadastro da reserva."""
+        data_in_raw = self.entry_entrada.get().strip()
+        data_out_raw = self.entry_saida.get().strip()
+
+        # Validação e conversão de datas (tela DD/MM/AAAA -> banco AAAA-MM-DD)
+        data_in = self._converter_data(data_in_raw)
+        data_out = self._converter_data(data_out_raw)
+        if not data_in or not data_out:
+            messagebox.showerror(
+                "Data Inválida",
+                "Informe as datas no formato DD/MM/AAAA.",
+                parent=self
+            )
+            return
+
+        # Validação da quantidade de pessoas
+        try:
+            qt_pessoas = int(self.entry_qt_pessoas.get())
+            if qt_pessoas <= 0:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror(
+                "Quantidade Inválida",
+                "Informe uma quantidade de pessoas válida (mínimo 1).",
+                parent=self
+            )
+            return
+
+        # Coleta o id do apartamento (campo 'numero' = id na tabela)
+        id_apto = dados_apto.get("numero")
 
         mensagem = (
             f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']} "
             f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
-            f"📅 Entrada: {data_in}\n"
-            f"📅 Saída: {data_out}\n"
-            f"💵 Diária: R$ {dados_apto['preco']:.2f}\n"
+            f"📅 Entrada: {data_in_raw}\n"
+            f"📅 Saída:   {data_out_raw}\n"
+            f"👥 Pessoas: {qt_pessoas}\n"
+            f"💵 Diária:  R$ {dados_apto['preco']:.2f}\n"
         )
-        confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
-        if confirmou:
-            messagebox.showinfo(
-                "Reserva Concluída",
-                f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",
+        if not messagebox.askyesno("Confirmar Reserva", mensagem, parent=self):
+            return
+
+        # Tenta obter o id do cliente logado (passado pelo menu principal)
+        id_cliente = getattr(self.app, "id_cliente_logado", None)
+        if not id_cliente:
+            messagebox.showwarning(
+                "Sessão inválida",
+                "Não foi possível identificar o cliente logado.\n"
+                "Faça login novamente.",
                 parent=self
             )
+            return
+
+        # Chama o controller para gravar no banco
+        sucesso, mensagem_retorno = CadastrarReserva(
+            id_cliente, id_apto, data_in, data_out, qt_pessoas
+        )
+
+        if sucesso:
+            messagebox.showinfo("Reserva Concluída", mensagem_retorno, parent=self)
+            # Atualiza a listagem de apartamentos após reservar
+            self.renderizar_apartamentos(self.combo_tipo.get())
+        else:
+            messagebox.showerror("Erro na Reserva", mensagem_retorno, parent=self)
 
 
 # ----------------------------------------------------------------------
@@ -709,5 +831,3 @@ if __name__ == "__main__":
     tela.pack(fill="both", expand=True)
 
     janela.mainloop()
-    
-    # preciso fazer implementar a quantidade de pessoas na view_reserva.py e armazenar em uma variavel
