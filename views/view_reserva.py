@@ -12,8 +12,11 @@ Seguindo o design da imagem:
 import calendar
 import os
 from datetime import date, datetime, timedelta
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import customtkinter as ctk
+from controls.control_reserva import CadastrarReserva
+from controls.control_cliente import buscar_cliente
+from controls.control_apto import BuscarApto
 
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO,
@@ -675,20 +678,33 @@ class TelaReservas(TelaBase):
         data_in = self.entry_entrada.get().strip()
         data_out = self.entry_saida.get().strip()
 
-        mensagem = (
-            f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']} "
-            f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
-            f"📅 Entrada: {data_in}\n"
-            f"📅 Saída: {data_out}\n"
-            f"💵 Diária: R$ {dados_apto['preco']:.2f}\n"
-        )
-        confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
-        if confirmou:
-            messagebox.showinfo(
-                "Reserva Concluída",
-                f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",
-                parent=self
+        
+        cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
+        
+        if cpf_cliente:
+            
+            Status, dados_cliente = buscar_cliente(cpf_cliente)
+            
+            mensagem = (
+                f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']}"
+                f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
+                f"👤 CPF: {dados_cliente[3]}\n"
+                f"📅 Entrada: {data_in}\n"
+                f"📅 Saída: {data_out}\n"
+                f"💵 Diária: R$ {dados_apto['preco']:.2f}\n"
             )
+            
+            confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
+            
+            if confirmou:
+                Status, dados_ap = BuscarApto(dados_apto.get('numero'))
+                
+                CadastrarReserva(dados_cliente[0], dados_ap[0], data_in, data_out, )
+                messagebox.showinfo(
+                    "Reserva Concluída",
+                    f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",
+                    parent=self
+                )
 
 
 # ----------------------------------------------------------------------

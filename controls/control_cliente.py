@@ -14,7 +14,6 @@ def gerar_hash_senha(senha):
 
 #------------------- FUNÇÃO DE CADASTRO ----------------------------
 def CadastrarCliente(nome, idade, cpf, cidade_origem, senha):
-    print("ENTRAMOS NO CONTROL")
     """
     Validar dados da View e solicitar cadastro ao Model
 
@@ -93,3 +92,12 @@ def AutenticarCliente(cpf, senha):
         return False, "Não foi possível verificar a senha."
 
     return True, "Login realizado com sucesso."
+
+#--------------------ENCONTRAR CLIENTE---------------------------
+
+def buscar_cliente(cpf):
+    cliente = buscar_cliente_por_cpf(cpf)
+    if cliente == []:
+        return False, "Não existe cliente com este nome."
+    else:
+        return True, cliente
