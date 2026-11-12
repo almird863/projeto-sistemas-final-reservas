@@ -14,6 +14,7 @@ import os
 from datetime import date, datetime, timedelta
 from tkinter import messagebox
 import customtkinter as ctk
+from views.componentes import centralizar_janela
 
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO,
@@ -80,7 +81,8 @@ class PopupCalendario(ctk.CTkToplevel):
             self.dia_selecionado = hoje.day
 
         self.title("Selecionar Data")
-        self.geometry("310x330")
+        centralizar_janela(self, 310, 330)
+        # self.geometry("310x330")
         self.resizable(False, False)
         self.configure(fg_color="white")
 
