@@ -381,7 +381,30 @@ class TelaReservas(TelaBase):
         )
         self.combo_tipo.pack(fill="x", pady=(0, 16))
         self.combo_tipo.set("Todos")
-
+        
+        ctk.CTkLabel(
+            conteudo, text="Quantidade de pessoas:",
+            font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
+            text_color=AZUL_ESCURO
+        ).pack(anchor="w", pady=(10, 2))
+        
+        self.combo_qt_pessoas = ctk.CTkComboBox(
+            conteudo,
+            values=["1", "2", "3", "4", "5", "6"],
+            font=ctk.CTkFont(family=FONTE, size=13),
+            dropdown_font=ctk.CTkFont(family=FONTE, size=13),
+            fg_color="white",
+            border_color=BORDA_CAMPO,
+            border_width=1,
+            corner_radius=8,
+            button_color="#E2E7F0",
+            button_hover_color="#CBD5E1",
+            text_color="#1E293B",
+            height=38
+        )
+        self.combo_qt_pessoas.pack(fill="x", pady=(0, 5))
+        self.combo_qt_pessoas.set("1")
+        
         # 4. Botão Buscar Disponibilidade (Laranja com Lupa)
         # >>> IMAGEM: coloque 'icone_lupa.png' (18x18) em views/assets/ <<<
         img_lupa = carregar_imagem("icone_lupa.png", (18, 18))
@@ -677,7 +700,7 @@ class TelaReservas(TelaBase):
         """Dispara o fluxo de confirmação de reserva."""
         data_in = self.entry_entrada.get().strip()
         data_out = self.entry_saida.get().strip()
-
+        qt_pessoas = self.combo_qt_pessoas.get()
         
         cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
         
@@ -699,7 +722,7 @@ class TelaReservas(TelaBase):
             if confirmou:
                 Status, dados_ap = BuscarApto(dados_apto.get('numero'))
                 
-                CadastrarReserva(dados_cliente[0], dados_ap[0], data_in, data_out, )
+                CadastrarReserva(dados_cliente[0], dados_ap[0], data_in, data_out, qt_pessoas)
                 messagebox.showinfo(
                     "Reserva Concluída",
                     f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",

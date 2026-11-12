@@ -162,7 +162,7 @@ def ListarAptos(somente_vagos=False):
         return False, f"Erro ao listar apartamentos: {erro}."
 
 
-# --------------------------------------------- BUSCAR APARTAMENTOS
+# -------------------------------- BUSCAR & APARTAMENTOS
 def BuscarApto(numero):
     try:
         numero = int(numero)
@@ -177,3 +177,5 @@ def BuscarApto(numero):
         return False, "Apartamento não encontrado."
     except Exception as erro:
         return False, f"Erro ao buscar apartamento: {erro}."
+
+# ---------------------------------- RESERVAR APARTAMENTO

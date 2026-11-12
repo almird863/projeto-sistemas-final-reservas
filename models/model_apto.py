@@ -131,7 +131,6 @@ def inserir_db_apto(tipo, numeracao, vago, preco_pessoa, limite_pessoa):
         print(f"Erro ao inserir apartamento: {e}")
         return False
 
-
 def atualizar_db_apto(a_ser_atualizado, valor_atualizado, id_apto):
     if a_ser_atualizado not in COLUNAS_PERMITIDAS:
         raise ValueError(f"Coluna inválida: {a_ser_atualizado}")

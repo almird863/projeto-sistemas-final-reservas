@@ -5,6 +5,7 @@ from models.model_reserva import (
     atualizar_db_reserva, 
     deletar_db_reserva
 )
+from models.model_apto import atualizar_db_apto
 
 #-------------------------------------------------- CADASTRAR RESERVA
 def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
@@ -30,6 +31,8 @@ def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
             qt_pessoas)
 
         if resultado:
+            resultado, valor = atualizar_db_apto("vago", 0, id_apto)
+            
             return True, f"Reserva cadastrada! Valor total: R${valor:.2f}"
         return False, "Não foi possível cadastrar a reserva."
 
