@@ -24,7 +24,6 @@ from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO, TEXTO_CINZA,
     carregar_imagem, criar_barra_titulo, montar_imagem_lateral, centralizar_janela,
 )
-
 # Cores/fonte usadas só aqui (as demais vêm do componentes.py)
 BRANCO = "#FFFFFF"
 HOVER_CARD = "#E8EEF8"
@@ -224,7 +223,7 @@ class JanelaPrincipal(ctk.CTk):
         self.registrar_tela(
             "apartamentos", lambda: __import__("views.view_apartamentos", fromlist=["TelaApartamentos"]).TelaApartamentos(self.container, self))
         self.registrar_tela(
-            "usuarios", lambda: TelaEmConstrucao(self.container, self, "Usuários"))
+            "usuarios", lambda: __import__("views.view_usuarios", fromlist=["TelaUsuarios"]).TelaUsuarios(self.container, self))
         self.registrar_tela(
             "checkinout", lambda: TelaEmConstrucao(self.container, self, "Check-in / Check-out"))
 

@@ -746,3 +746,5 @@ if __name__ == "__main__":
     tela.pack(fill="both", expand=True)
 
     janela.mainloop()
+    
+    # preciso fazer implementar a quantidade de pessoas na view_reserva.py e armazenar em uma variavel
