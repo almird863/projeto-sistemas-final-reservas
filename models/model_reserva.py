@@ -17,7 +17,7 @@ def criar_db_reservas():
                 data_saida TEXT NOT NULL,
                 qt_pessoas INTEGER NOT NULL CHECK (qt_pessoas > 0),
                 valor REAL NOT NULL CHECK (valor >= 0),
-                status TEXT NOT NULL DEFAULT 'em aberto' CHECK (status IN ('concluido', 'em aberto', 'cancelado'))
+                status TEXT NOT NULL DEFAULT 'em aberto' CHECK (status IN ('concluido', 'em aberto', 'check-in feito', 'cancelado'))
                 CHECK (data_saida > data_entrada),
                 FOREIGN KEY (id_cliente) REFERENCES Clientes(id),
                 FOREIGN KEY (id_apto) REFERENCES Apartamentos(id))''')
