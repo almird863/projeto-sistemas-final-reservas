@@ -17,6 +17,7 @@ import customtkinter as ctk
 from controls.control_reserva import CadastrarReserva
 from controls.control_cliente import buscar_cliente
 from controls.control_apto import BuscarApto
+from views.view_usuarios import carregar_conta
 
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO,
@@ -702,19 +703,20 @@ class TelaReservas(TelaBase):
         data_out = self.entry_saida.get().strip()
         qt_pessoas = self.combo_qt_pessoas.get()
         
-        cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
+        conta = carregar_conta(getattr(self.app, "usuario", ""))
+        dados = conta['perfil']
+        # cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
         
-        if cpf_cliente:
-            
-            Status, dados_cliente = buscar_cliente(cpf_cliente)
+        if dados:
+            Status, dados_cliente = buscar_cliente(dados['cpf'])
             
             mensagem = (
                 f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']}"
                 f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
-                f"👤 CPF: {dados_cliente[3]}\n"
+                f"👤 CPF: {dados['cpf']}\n"
                 f"📅 Entrada: {data_in}\n"
                 f"📅 Saída: {data_out}\n"
-                f"💵 Diária: R$ {dados_apto['preco']:.2f}\n"
+                f"💵 Diária: R$ {float(dados_apto['preco'])*int(qt_pessoas):.2f}\n"
             )
             
             confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
