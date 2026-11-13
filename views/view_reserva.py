@@ -242,7 +242,7 @@ class TelaReservas(TelaBase):
 
     def _adicionar_onda_inferior(self):
         """Onda laranja/azul decorativa no canto inferior direito."""
-        img_onda = carregar_imagem("onda_reserva_inferior.png", (380, 65))
+        img_onda = carregar_imagem("onda_reserva_innferior.png", (380, 65))
         if img_onda:
             self._imagens_cache.append(img_onda)
             self._lbl_onda_inf = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
