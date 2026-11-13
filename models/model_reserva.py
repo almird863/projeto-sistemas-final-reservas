@@ -17,11 +17,11 @@ def criar_db_reservas():
                 data_saida TEXT NOT NULL,
                 qt_pessoas INTEGER NOT NULL CHECK (qt_pessoas > 0),
                 valor REAL NOT NULL CHECK (valor >= 0),
+                status TEXT NOT NULL DEFAULT 'em aberto' CHECK (status IN ('concluido', 'em aberto', 'check-in feito', 'cancelado'))
                 CHECK (data_saida > data_entrada),
                 FOREIGN KEY (id_cliente) REFERENCES Clientes(id),
                 FOREIGN KEY (id_apto) REFERENCES Apartamentos(id))''')
     cx.commit()
-
 
 def _validar_e_calcular(id_apto, data_entrada, data_saida, qt_pessoas, ignorar_id=None):
     """Valida as regras da reserva e devolve o valor total.
@@ -34,12 +34,12 @@ def _validar_e_calcular(id_apto, data_entrada, data_saida, qt_pessoas, ignorar_i
     preco_pessoa, limite_pessoa = apto
     if preco_pessoa is None:
         raise ValueError("Este apartamento não tem preço cadastrado.")
-
+    
     try:
-        entrada = datetime.strptime(data_entrada, "%Y-%m-%d")
-        saida = datetime.strptime(data_saida, "%Y-%m-%d")
+        entrada = datetime.strptime(data_entrada, "%d/%m/%Y")
+        saida = datetime.strptime(data_saida, "%d/%m/%Y")
     except ValueError:
-        raise ValueError("Datas devem estar no formato AAAA-MM-DD.")
+        raise ValueError("Datas devem estar no formato DD-MM-AAAA.")
 
     dias = (saida - entrada).days
     if dias <= 0:
@@ -50,6 +50,7 @@ def _validar_e_calcular(id_apto, data_entrada, data_saida, qt_pessoas, ignorar_i
     if limite_pessoa is not None and qt_pessoas > limite_pessoa:
         raise ValueError(
             f"Este apartamento comporta no máximo {limite_pessoa} pessoa(s).")
+
 
     cs.execute('''SELECT 1 FROM Reservas
                   WHERE id_apto = ? AND data_entrada < ? AND data_saida > ?

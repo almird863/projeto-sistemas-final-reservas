@@ -12,8 +12,12 @@ Seguindo o design da imagem:
 import calendar
 import os
 from datetime import date, datetime, timedelta
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import customtkinter as ctk
+from controls.control_reserva import CadastrarReserva
+from controls.control_cliente import buscar_cliente
+from controls.control_apto import BuscarApto
+from views.view_usuarios import carregar_conta
 
 from views.componentes import (
     AZUL_ESCURO, AZUL_HOVER, LARANJA, LARANJA_HOVER, FUNDO_DIREITO,
@@ -213,7 +217,9 @@ class TelaReservas(TelaBase):
 
     def __init__(self, master, app=None, **kwargs):
         super().__init__(master, app, **kwargs)
-
+        self.numero_filtro = getattr(app, "apartamento_selecionado", None)
+        if app is not None:
+            app.apartamento_selecionado = None  
         # Referências de imagens para evitar garbage collection do Tkinter
         self._imagens_cache = []
         # Referências dos labels das ondas (para poder elevá-las ao topo do z-order)
@@ -227,7 +233,7 @@ class TelaReservas(TelaBase):
 
         # Ondas decorativas DEPOIS do corpo — assim ficam na frente de tudo
         self._adicionar_onda_superior()
-        self._adicionar_onda_inferior()
+        # self._adicionar_onda_inferior()
 
         # Garantia extra: eleva as ondas após o Tkinter terminar o layout
         self.after(50, self._elevar_ondas)
@@ -240,13 +246,13 @@ class TelaReservas(TelaBase):
             self._lbl_onda_sup = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
             self._lbl_onda_sup.place(relx=1.0, y=0, anchor="ne")
 
-    def _adicionar_onda_inferior(self):
-        """Onda laranja/azul decorativa no canto inferior direito."""
-        img_onda = carregar_imagem("onda_reserva_innferior.png", (380, 65))
-        if img_onda:
-            self._imagens_cache.append(img_onda)
-            self._lbl_onda_inf = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
-            self._lbl_onda_inf.place(relx=1.0, rely=1.0, anchor="se")
+    # def _adicionar_onda_inferior(self):
+    #     """Onda laranja/azul decorativa no canto inferior direito."""
+    #     img_onda = carregar_imagem("onda_reserva_inferior.png", (380, 65))
+    #     if img_onda:
+    #         self._imagens_cache.append(img_onda)
+    #         self._lbl_onda_inf = ctk.CTkLabel(self, text="", image=img_onda, fg_color="transparent")
+    #         self._lbl_onda_inf.place(relx=1.0, rely=1.0, anchor="se")
 
     def _elevar_ondas(self):
         """Eleva os labels das ondas ao topo do z-order após o layout ser concluído."""
@@ -256,8 +262,12 @@ class TelaReservas(TelaBase):
             self._lbl_onda_inf.lift()
 
     def ao_exibir(self):
-        """Ao exibir a tela, carrega/atualiza os apartamentos."""
-        self.ao_clicar_buscar()
+        """Lê o apto escolhido no mapa; chamadas sem valor novo não apagam o filtro."""
+        numero = getattr(self.app, "apartamento_selecionado", None)
+        if numero is not None:
+            self.numero_filtro = numero
+            self.app.apartamento_selecionado = None
+        self.renderizar_apartamentos(self.combo_tipo.get())
 
     # ------------------------------------------------------------------
     # 1. CABEÇALHO DA TELA
@@ -358,7 +368,7 @@ class TelaReservas(TelaBase):
 
         self.combo_tipo = ctk.CTkComboBox(
             conteudo,
-            values=["Todos", "Standard", "Luxo", "Suíte"],
+            values=["Todos", "Standard", "Duplo", "Luxo", "Super Luxo", "Presidencial"],
             font=ctk.CTkFont(family=FONTE, size=13),
             dropdown_font=ctk.CTkFont(family=FONTE, size=13),
             fg_color="white",
@@ -372,7 +382,30 @@ class TelaReservas(TelaBase):
         )
         self.combo_tipo.pack(fill="x", pady=(0, 16))
         self.combo_tipo.set("Todos")
-
+        
+        ctk.CTkLabel(
+            conteudo, text="Quantidade de pessoas:",
+            font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
+            text_color=AZUL_ESCURO
+        ).pack(anchor="w", pady=(10, 2))
+        
+        self.combo_qt_pessoas = ctk.CTkComboBox(
+            conteudo,
+            values=["1", "2", "3", "4", "5", "6"],
+            font=ctk.CTkFont(family=FONTE, size=13),
+            dropdown_font=ctk.CTkFont(family=FONTE, size=13),
+            fg_color="white",
+            border_color=BORDA_CAMPO,
+            border_width=1,
+            corner_radius=8,
+            button_color="#E2E7F0",
+            button_hover_color="#CBD5E1",
+            text_color="#1E293B",
+            height=38
+        )
+        self.combo_qt_pessoas.pack(fill="x", pady=(0, 5))
+        self.combo_qt_pessoas.set("1")
+        
         # 4. Botão Buscar Disponibilidade (Laranja com Lupa)
         # >>> IMAGEM: coloque 'icone_lupa.png' (18x18) em views/assets/ <<<
         img_lupa = carregar_imagem("icone_lupa.png", (18, 18))
@@ -460,6 +493,13 @@ class TelaReservas(TelaBase):
             font=ctk.CTkFont(family=FONTE, size=14, weight="bold"),
             text_color="white"
         ).pack(side="left", padx=14)
+        
+        self.btn_ver_todos = ctk.CTkButton(
+            barra_tit, text="Ver todos", width=90, height=28,
+            font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
+            fg_color=LARANJA, hover_color=LARANJA_HOVER, text_color="white",
+            command=self.ao_clicar_ver_todos
+        )
 
         # Container scrollável para acomodar os cards de apartamentos lado a lado
         self.container_cards = ctk.CTkScrollableFrame(
@@ -520,22 +560,27 @@ class TelaReservas(TelaBase):
             aptos_exemplo = []
             for linha in dados_banco:
                 tipo = linha[1]
-                numero = linha[2]
+                numeracao = linha[2]
                 preco = linha[4] or 0.0
                 aptos_exemplo.append({
                     "tipo": tipo,
                     "descricao": descricoes.get(tipo, "Acomodação completa"),
                     "preco": preco,
                     "foto": fotos.get(tipo, "foto_quarto.png"),
-                    "numero": numero,
+                    "numero": numeracao,
                 })
 
-        # Aplica o filtro de tipo selecionado
-        if tipo_filtro and tipo_filtro != "Todos":
-            aptos_exemplo = [
-                a for a in aptos_exemplo
-                if a["tipo"].lower() == tipo_filtro.lower()
-            ]
+        # Apto específico (vindo do mapa) tem prioridade sobre o filtro de tipo
+        if self.numero_filtro is not None:
+            aptos_exemplo = [a for a in aptos_exemplo if a["numero"] == self.numero_filtro]
+            self.btn_ver_todos.pack(side="right", padx=10)
+        else:
+            self.btn_ver_todos.pack_forget()
+            if tipo_filtro and tipo_filtro != "Todos":
+                aptos_exemplo = [
+                    a for a in aptos_exemplo
+                    if a["tipo"].lower() == tipo_filtro.lower()
+                ]
 
         if not aptos_exemplo:
             ctk.CTkLabel(
@@ -558,12 +603,22 @@ class TelaReservas(TelaBase):
         card.pack(side="left", padx=8, pady=4, fill="y")
         card.pack_propagate(False)
 
-        # 1. Título do Quarto
+        # 1. Título do Quarto + numeração
+        topo = ctk.CTkFrame(card, fg_color="transparent")
+        topo.pack(fill="x", padx=12, pady=(10, 6))
+
         ctk.CTkLabel(
-            card, text=dados["tipo"],
+            topo, text=dados["tipo"],
             font=ctk.CTkFont(family=FONTE, size=16, weight="bold"),
             text_color=AZUL_ESCURO
-        ).pack(anchor="w", padx=12, pady=(10, 6))
+        ).pack(side="left")
+
+        ctk.CTkLabel(
+            topo, text=f"Nº {dados.get('numero', 'S/N')}",
+            font=ctk.CTkFont(family=FONTE, size=12, weight="bold"),
+            text_color="white", fg_color=LARANJA,
+            corner_radius=6, width=52, height=22
+        ).pack(side="right")
 
         # 2. Foto do Quarto
         # >>> IMAGEM: coloque as fotos dos quartos em views/assets/ <<<
@@ -634,29 +689,47 @@ class TelaReservas(TelaBase):
     # AÇÕES
     # ------------------------------------------------------------------
     def ao_clicar_buscar(self):
-        """Dispara a filtragem dos apartamentos."""
-        tipo_selecionado = self.combo_tipo.get()
-        self.renderizar_apartamentos(tipo_filtro=tipo_selecionado)
+        """Busca por tipo; sai do modo 'apto específico'."""
+        self.numero_filtro = None
+        self.renderizar_apartamentos(tipo_filtro=self.combo_tipo.get())
+
+    def ao_clicar_ver_todos(self):
+        self.numero_filtro = None
+        self.renderizar_apartamentos(self.combo_tipo.get())
 
     def ao_clicar_reservar(self, dados_apto):
         """Dispara o fluxo de confirmação de reserva."""
         data_in = self.entry_entrada.get().strip()
         data_out = self.entry_saida.get().strip()
-
-        mensagem = (
-            f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']} "
-            f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
-            f"📅 Entrada: {data_in}\n"
-            f"📅 Saída: {data_out}\n"
-            f"💵 Diária: R$ {dados_apto['preco']:.2f}\n"
-        )
-        confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
-        if confirmou:
-            messagebox.showinfo(
-                "Reserva Concluída",
-                f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",
-                parent=self
+        qt_pessoas = self.combo_qt_pessoas.get()
+        
+        conta = carregar_conta(getattr(self.app, "usuario", ""))
+        dados = conta['perfil']
+        # cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
+        
+        if dados:
+            Status, dados_cliente = buscar_cliente(dados['cpf'])
+            
+            mensagem = (
+                f"Deseja confirmar a reserva do apartamento {dados_apto['tipo']}"
+                f"(Nº {dados_apto.get('numero', 'S/N')})?\n\n"
+                f"👤 CPF: {dados['cpf']}\n"
+                f"📅 Entrada: {data_in}\n"
+                f"📅 Saída: {data_out}\n"
+                f"💵 Diária: R$ {float(dados_apto['preco'])*int(qt_pessoas):.2f}\n"
             )
+            
+            confirmou = messagebox.askyesno("Confirmar Reserva", mensagem, parent=self)
+            
+            if confirmou:
+                Status, dados_ap = BuscarApto(dados_apto.get('numero'))
+                
+                CadastrarReserva(dados_cliente[0], dados_ap[0], data_in, data_out, qt_pessoas)
+                messagebox.showinfo(
+                    "Reserva Concluída",
+                    f"Reserva para o apartamento {dados_apto['tipo']} realizada com sucesso!",
+                    parent=self
+                )
 
 
 # ----------------------------------------------------------------------
@@ -675,3 +748,5 @@ if __name__ == "__main__":
     tela.pack(fill="both", expand=True)
 
     janela.mainloop()
+    
+    # preciso fazer implementar a quantidade de pessoas na view_reserva.py e armazenar em uma variavel

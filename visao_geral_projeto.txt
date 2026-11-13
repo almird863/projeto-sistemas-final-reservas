@@ -1,0 +1,17 @@
+# Pastas
+- main.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/main.py)
+## Controllers
+- control_apto.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/controls/control_apto.py)
+- control_cliente.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/controls/control_cliente.py)
+- control_reserva.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/controls/control_reserva.py)
+## Models
+- model_apto.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/models/model_apto.py)
+- model_cliente.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/models/model_cliente.py)
+- model_reserva.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/models/model_reserva.py)
+## Views
+- Componentes.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/componentes.py)
+- view_apartamentos.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/view_apartamentos.py)
+- view_cadastro_cliente.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/view_cadastro_cliente.py)
+- view_login.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/view_login.py)
+- view_menu_principal.py (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/view_menu_principal.py)
+- [view_reserva.py] (https://github.com/almird863/projeto-sistemas-final-reservas/blob/main/views/view_reserva.py)

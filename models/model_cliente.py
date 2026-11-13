@@ -31,7 +31,7 @@ def buscar_cliente_por_cpf(cpf):
         )
         return cs.fetchone()
     except sqlite3.Error:
-        return None
+        return []
 #####################################################
 
 def listar_clientes():
