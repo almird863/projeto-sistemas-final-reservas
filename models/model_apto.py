@@ -4,7 +4,7 @@ cx = sqlite3.connect('databank/sistema-hotelaria.db')
 cs = cx.cursor()
 
 COLUNAS_PERMITIDAS = {
-    "tipo", "numeracao", "vago", "preco_pessoa", "limite_pessoa",
+    "tipo", "numeracao", "status", "preco_pessoa", "limite_pessoa",
     "pet_friendly", "qt_camas", "vista_mar", "frigobar", "mesa_sinuca",
 }
 
@@ -24,13 +24,6 @@ def criar_db_aptos():
                 mesa_sinuca INTEGER NOT NULL DEFAULT 0 CHECK (mesa_sinuca IN (0, 1)),
                 acessivel INTEGER NOT NULL DEFAULT 0 CHECK (acessivel IN (0, 1)))''')
     cx.commit()
-    
-def recriar():
-    cs.execute("DROP TABLE Apartamentos")
-    cx.commit()
-    criar_db_aptos()
-    
-recriar()
 
 def buscar_apto(numero):
     try:

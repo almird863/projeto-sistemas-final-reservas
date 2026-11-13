@@ -174,7 +174,7 @@ class TelaApartamentos(TelaBase):
                             border_width=1, border_color=BORDA_CARD)
         card.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(
-            card, text="ENTRADA / ELEVADOR", font=(FONTE, 11, "bold"),
+            card, text="SELECIONE UM APARTAMENTO", font=(FONTE, 11, "bold"),
             text_color=BRANCO, fg_color=AZUL_ESCURO, corner_radius=8, height=26,
         ).grid(row=0, column=0, sticky="ew", padx=40, pady=(14, 8))
         self.grade = ctk.CTkFrame(card, fg_color="transparent")
