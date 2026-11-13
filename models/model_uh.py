@@ -16,6 +16,9 @@ def criar_tabela_uh():
                 acessivel INTEGER NOT NULL DEFAULT 0 CHECK (acessivel IN (0, 1)))''')
     cx.commit()
 
+
+# -------------------------------------------------------------------------------------- BUSCAR
+
 def buscar_uh(numero):
     try:
         cs.execute("SELECT * FROM Apartamentos WHERE numeracao = ?", (numero,))
@@ -23,3 +26,23 @@ def buscar_uh(numero):
     except sqlite3.Error as e:
         print(f"Erro ao buscar apartamento: {e}")
         return False, []
+
+
+# -------------------------------------------------------------------------------------- REGISTRO
+
+
+def inserir_uh(numeracao, status, vm, vr, acc):
+    try:
+        cs.execute('''INSERT INTO Unidade_Habitacional (numeracao, status, vista_mar, vista_rua, acessível)
+                    VALUES (?,?,?,?,?)''', (numeracao, status, vm, vr, acc))
+        cx.commit()
+        
+        return True, f"Unidade Habitacional Nº{numeracao} inserida com sucesso."
+    
+    except sqlite3.Error as e:
+        cx.rollback()
+
+        return False, f"Erro: {e}"
+
+
+# -------------------------------------------------------------------------------------- REGISTRO
