@@ -31,3 +31,22 @@ Duas coisas precisam de acordo antes de ligar o login ao banco.
 ## Na branch view
 
 Traga os models novos com `git merge origin/main` na `view`. Pode haver conflito entre `views/views.py` (da `main`) e `views/view_reserva.py` (da `view`). Os dois arquivos estão vazios, então mantenha o `view_reserva.py`.
+
+
+## Estrategia do - skip-worktree
+Como fazer com que o diretório seja atualizado pelo seu colega quando fizer git pull, mas que suas modificações locais nunca sejam enviadas quando fizer git push.
+
+Nesse caso, existe uma ressalva: o Git não oferece esse comportamento automaticamente para um diretório que já é rastreado pelo repositório.
+
+A estratégia mais próxima é usar skip-worktree, mas ela tem limitações.
+
+Como funciona
+Para um arquivo específico:
+
+bash
+`git update-index --skip-worktree caminho/do/arquivo`
+
+Para desfazer:
+bash
+`git update-index --no-skip-worktree caminho/do/arquivo`
+Isso sinaliza ao Git para preservar suas alterações locais em operações comuns, mas não garante que você receberá todas as atualizações remotas desse arquivo.

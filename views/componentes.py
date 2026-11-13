@@ -149,6 +149,41 @@ def criar_campo(parent, placeholder, icone_arquivo, icone_fallback, mostrar=None
     entry.pack(side="left", fill="both", expand=True, padx=(4, 8), pady=3)
     return entry
 
+def criar_titulo(parent, texto):
+    """
+    Título padrão das telas (mesmo estilo usado em TelaReservas):
+    Segoe UI 24 negrito, na cor azul-escuro padrão do sistema.
+    """
+    return ctk.CTkLabel(
+        parent,
+        text=texto,
+        font=ctk.CTkFont(family="Segoe UI", size=24, weight="bold"),
+        text_color=AZUL_ESCURO,
+    )
+
+
+def criar_botao(parent, texto, comando, destaque=False):
+    """
+    Botão padrão das telas.
+
+    destaque=False -> azul-escuro (ação neutra/primária, ex.: "Atualizar")
+    destaque=True  -> laranja (ação de destaque, ex.: "Reservar", "Buscar")
+    """
+    cor = LARANJA if destaque else AZUL_ESCURO
+    cor_hover = LARANJA_HOVER if destaque else AZUL_HOVER
+
+    return ctk.CTkButton(
+        parent,
+        text=texto,
+        font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
+        fg_color=cor,
+        hover_color=cor_hover,
+        text_color="white",
+        corner_radius=8,
+        height=42,
+        command=comando,
+    )
+
 def centralizar_janela(janela, largura, altura):
     janela.update_idletasks()
     # Pega a resolução do monitor do usuário

@@ -1,13 +1,24 @@
 from models.model_reserva import (
-    inserir_db_reserva, 
-    buscar_db_reserva, 
-    listar_db_reservas, 
-    atualizar_db_reserva, 
-    deletar_db_reserva
+    inserir_db_reserva,
+    buscar_db_reserva,
+    listar_db_reservas,
+    atualizar_db_reserva,
+    deletar_db_reserva,
+    # NOVO: check-in / check-out
+    adicionar_coluna_checkin,
+    listar_db_reservas_para_checkin,
+    listar_db_reservas_hospedadas,
+    listar_db_reservas_concluidas,
+    marcar_checkin_db,
+    marcar_checkout_db,
 )
 from models.model_apto import atualizar_db_apto
 
+<<<<<<< HEAD
 #-------------------------------------------------- CADASTRAR RESERVA
+=======
+
+>>>>>>> view
 def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
     try:
         # validar preenchimento

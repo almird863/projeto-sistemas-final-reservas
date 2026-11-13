@@ -22,6 +22,31 @@ def criar_db_reservas():
                 FOREIGN KEY (id_cliente) REFERENCES Clientes(id),
                 FOREIGN KEY (id_apto) REFERENCES Apartamentos(id))''')
     cx.commit()
+    adicionar_coluna_checkin()
+
+
+# ----------------------------------------------------------------------
+# NOVO: controle de check-in / check-out
+# ----------------------------------------------------------------------
+# A tabela Reservas já tinha "status" ('em aberto' / 'concluido' / 'cancelado'),
+# mas isso descreve a reserva em si (se ela existe/foi cancelada/terminou).
+# Não existia nada dizendo "o hóspede já chegou (fez check-in) mas ainda não saiu".
+#
+# Em vez de mexer no CHECK de "status" (o que exigiria recriar a tabela inteira
+# no SQLite), foi adicionada uma coluna separada: checkin_feito.
+#   checkin_feito = 0 -> reserva em aberto, hóspede ainda não chegou (aguardando check-in)
+#   checkin_feito = 1 -> hóspede já chegou (já pode fazer check-out)
+# Quando o check-out é feito, a reserva passa para status = 'concluido' (como já era).
+
+def adicionar_coluna_checkin():
+    """Migration simples e segura: adiciona a coluna checkin_feito se ainda não existir."""
+    try:
+        cs.execute(
+            "ALTER TABLE Reservas ADD COLUMN checkin_feito INTEGER NOT NULL DEFAULT 0")
+        cx.commit()
+    except sqlite3.OperationalError:
+        pass  # a coluna já existe, não faz nada
+
 
 def _validar_e_calcular(id_apto, data_entrada, data_saida, qt_pessoas, ignorar_id=None):
     """Valida as regras da reserva e devolve o valor total.
@@ -127,4 +152,95 @@ def deletar_db_reserva(id_reserva):
     except sqlite3.Error as e:
         cx.rollback()
         print(f"Erro ao deletar reserva: {e}")
+        raise
+
+
+# ----------------------------------------------------------------------
+# NOVO: consultas e ações para a tela de Check-in / Check-out
+# ----------------------------------------------------------------------
+#
+# Observação sobre o JOIN com Apartamentos:
+# Estou assumindo que a tabela Apartamentos tem uma coluna chamada "numero"
+# com o número do apartamento (ex.: "204"). Se o nome real for outro
+# (ex.: "numero_apto", "identificacao"), troque "a.numero" pelo nome certo
+# nas três consultas abaixo (está marcado com # AJUSTAR).
+
+def listar_db_reservas_para_checkin():
+    """Reservas em aberto cujo hóspede ainda não chegou (aguardando check-in)."""
+    try:
+        cs.execute('''
+            SELECT r.id, r.id_cliente, r.id_apto, r.data_entrada, r.data_saida,
+                   r.qt_pessoas, r.valor, r.status, r.checkin_feito,
+                   a.numero AS numero_apto
+            FROM Reservas r
+            LEFT JOIN Apartamentos a ON a.id = r.id_apto  -- AJUSTAR: nome da coluna "numero"
+            WHERE r.status = 'em aberto' AND r.checkin_feito = 0
+            ORDER BY r.data_entrada
+        ''')
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar reservas para check-in: {e}")
+        return []
+
+
+def listar_db_reservas_hospedadas():
+    """Reservas em aberto cujo hóspede já fez check-in (aguardando check-out)."""
+    try:
+        cs.execute('''
+            SELECT r.id, r.id_cliente, r.id_apto, r.data_entrada, r.data_saida,
+                   r.qt_pessoas, r.valor, r.status, r.checkin_feito,
+                   a.numero AS numero_apto
+            FROM Reservas r
+            LEFT JOIN Apartamentos a ON a.id = r.id_apto  -- AJUSTAR: nome da coluna "numero"
+            WHERE r.status = 'em aberto' AND r.checkin_feito = 1
+            ORDER BY r.data_entrada
+        ''')
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar reservas hospedadas: {e}")
+        return []
+
+
+def listar_db_reservas_concluidas():
+    """Reservas já finalizadas (check-out feito)."""
+    try:
+        cs.execute('''
+            SELECT r.id, r.id_cliente, r.id_apto, r.data_entrada, r.data_saida,
+                   r.qt_pessoas, r.valor, r.status, r.checkin_feito,
+                   a.numero AS numero_apto
+            FROM Reservas r
+            LEFT JOIN Apartamentos a ON a.id = r.id_apto  -- AJUSTAR: nome da coluna "numero"
+            WHERE r.status = 'concluido'
+            ORDER BY r.data_saida DESC
+        ''')
+        return cs.fetchall()
+    except sqlite3.Error as e:
+        print(f"Erro ao listar reservas concluídas: {e}")
+        return []
+
+
+def marcar_checkin_db(id_reserva):
+    """Marca que o hóspede chegou. Retorna True se encontrou e atualizou a reserva."""
+    try:
+        cs.execute('''UPDATE Reservas SET checkin_feito = 1
+                      WHERE id = ? AND status = 'em aberto' ''', (id_reserva,))
+        cx.commit()
+        return cs.rowcount > 0
+    except sqlite3.Error as e:
+        cx.rollback()
+        print(f"Erro ao marcar check-in: {e}")
+        raise
+
+
+def marcar_checkout_db(id_reserva):
+    """Marca a saída do hóspede: encerra a reserva (status = 'concluido')."""
+    try:
+        cs.execute('''UPDATE Reservas SET status = 'concluido'
+                      WHERE id = ? AND status = 'em aberto' AND checkin_feito = 1''',
+                   (id_reserva,))
+        cx.commit()
+        return cs.rowcount > 0
+    except sqlite3.Error as e:
+        cx.rollback()
+        print(f"Erro ao marcar check-out: {e}")
         raise
