@@ -19,8 +19,7 @@ Rodar junto do sistema: a tela é aberta pelo item "Usuários" da sidebar
 from tkinter import ttk
 import customtkinter as ctk
 
-from controls.control_cliente import ControlCliente
-from controls.control_reserva import ControlReserva
+from controls.control_usuario import carregar_conta
 from views.componentes import (
     AZUL_ESCURO, TEXTO_CINZA, FUNDO_DIREITO, criar_botao, criar_titulo,
 )
@@ -51,11 +50,6 @@ class ViewUsuarios(TelaBase):
 
     def __init__(self, master, app=None, **kwargs):
         super().__init__(master, app, **kwargs)
-
-        self.control_cliente = ControlCliente()
-        self.control_reserva = ControlReserva()
-
-        self._cliente_atual = None  # tupla (id, nome, idade, cpf, cidade_origem, senha)
 
         self._criar_cabecalho()
         self._criar_cartao_perfil()
@@ -200,71 +194,57 @@ class ViewUsuarios(TelaBase):
     # CARREGAMENTO DE DADOS
     # ------------------------------------------------------------------
     def carregar_dados(self):
-        self._carregar_perfil()
-        self._carregar_reserva_atual()
-        self._carregar_historico()
+        conta = carregar_conta(self._cpf_usuario_logado())
+        self._carregar_perfil(conta["perfil"])
+        self._carregar_reserva_atual(conta["atual"])
+        self._carregar_historico(conta["historico"])
 
     def _cpf_usuario_logado(self):
         """app.usuario guarda o CPF de quem fez login (string), não um dict."""
         return getattr(self.app, "usuario", "") if self.app else ""
 
-    def _carregar_perfil(self):
-        cpf = self._cpf_usuario_logado()
-        cliente = self.control_cliente.buscar_por_cpf(cpf) if cpf else None
-        self._cliente_atual = cliente
-
-        if not cliente:
+    def _carregar_perfil(self, perfil):
+        if not perfil["encontrado"]:
             self.lbl_nome.configure(text="Nome: usuário não encontrado")
             self.lbl_cpf.configure(text="CPF: —")
             self.lbl_idade.configure(text="Idade: —")
             self.lbl_cidade.configure(text="Cidade de origem: —")
             return
 
-        # cliente -> (id, nome, idade, cpf, cidade_origem, senha)
-        _id, nome, idade, cpf, cidade_origem, _senha = cliente
-        self.lbl_nome.configure(text=f"Nome: {nome}")
-        self.lbl_cpf.configure(text=f"CPF: {cpf}")
-        self.lbl_idade.configure(text=f"Idade: {idade}")
-        self.lbl_cidade.configure(text=f"Cidade de origem: {cidade_origem}")
+        self.lbl_nome.configure(text=f"Nome: {perfil['nome']}")
+        self.lbl_cpf.configure(text=f"CPF: {perfil['cpf']}")
+        self.lbl_idade.configure(text=f"Idade: {perfil['idade']}")
+        self.lbl_cidade.configure(text=f"Cidade de origem: {perfil['cidade']}")
 
-    def _id_cliente_atual(self):
-        return self._cliente_atual[0] if self._cliente_atual else None
-
-    def _carregar_reserva_atual(self):
-        id_cliente = self._id_cliente_atual()
-        reserva = self.control_reserva.buscar_reserva_ativa(id_cliente) if id_cliente else None
-
+    def _carregar_reserva_atual(self, reserva):
         if not reserva:
             self.lbl_reserva.configure(text="Você não possui uma reserva ativa.")
             return
 
         self.lbl_reserva.configure(
             text=(
-                f"Reserva nº {reserva.id}\n"
-                f"Apartamento: {reserva.apartamento}\n"
-                f"Check-in: {reserva.data_entrada}\n"
-                f"Check-out: {reserva.data_saida}\n"
-                f"Status: {reserva.status}"
+                f"Reserva nº {reserva['id']}\n"
+                f"Apartamento: {reserva['apartamento']}\n"
+                f"Check-in: {reserva['entrada']}\n"
+                f"Check-out: {reserva['saida']}\n"
+                f"Status: {reserva['status']}"
             )
         )
 
-    def _carregar_historico(self):
+    def _carregar_historico(self, reservas):
         for item in self.tabela.get_children():
             self.tabela.delete(item)
-
-        id_cliente = self._id_cliente_atual()
-        reservas = self.control_reserva.buscar_historico(id_cliente) if id_cliente else []
 
         for reserva in reservas:
             self.tabela.insert(
                 "", "end",
                 values=(
-                    reserva.id,
-                    reserva.apartamento,
-                    reserva.data_entrada,
-                    reserva.data_saida,
-                    reserva.status,
-                    f"R$ {reserva.valor:.2f}".replace(".", ","),
+                    reserva["id"],
+                    reserva["apartamento"],
+                    reserva["entrada"],
+                    reserva["saida"],
+                    reserva["status"],
+                    reserva["valor"].replace(".", ","),
                 )
             )
 
