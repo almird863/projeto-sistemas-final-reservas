@@ -14,11 +14,6 @@ from models.model_reserva import (
 )
 from models.model_apto import atualizar_db_apto
 
-<<<<<<< HEAD
-#-------------------------------------------------- CADASTRAR RESERVA
-=======
-
->>>>>>> view
 def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):
     try:
         # validar preenchimento
