@@ -226,7 +226,7 @@ class JanelaPrincipal(ctk.CTk):
         self.registrar_tela(
             "usuarios", lambda: __import__("views.view_usuarios", fromlist=["ViewUsuarios"]).ViewUsuarios(self.container, self))
         self.registrar_tela(
-            "checkinout", lambda: TelaEmConstrucao(self.container, self, "Check-in / Check-out"))
+            "checkinout", lambda: __import__("views.view_checkin", fromlist=["TelaCheckin"]).TelaCheckin(self.container, self))
 
     def registrar_tela(self, chave, fabrica):
         self._telas_registradas[chave] = fabrica
