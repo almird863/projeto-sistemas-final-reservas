@@ -1,11 +1,11 @@
-from models.model_reserva import (
+from models.model_estadia import (
     inserir_db_reserva, 
     buscar_db_reserva, 
     listar_db_reservas, 
     atualizar_db_reserva, 
     deletar_db_reserva
 )
-from models.model_apto import atualizar_db_apto
+from models.model_uh import atualizar_db_apto
 
 #-------------------------------------------------- CADASTRAR RESERVA
 def CadastrarReserva(id_cliente, id_apto, data_entrada, data_saida, qt_pessoas):

@@ -1,4 +1,4 @@
-from models.model_apto import (
+from models.model_uh import (
     inserir_db_apto,
     buscar_apto,
     listar_aptos,

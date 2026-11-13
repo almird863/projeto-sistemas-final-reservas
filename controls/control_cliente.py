@@ -1,4 +1,4 @@
-from models.model_cliente import (
+from models.model_adm import (
     inserir_db_cliente,
     buscar_cliente_por_cpf
 )

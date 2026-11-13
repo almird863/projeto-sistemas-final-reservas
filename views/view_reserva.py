@@ -37,7 +37,7 @@ except ImportError:
 
 # Import do Model/Controller de Apartamentos (se disponível)
 try:
-    from models.model_apto import listar_aptos
+    from models.model_uh import listar_aptos
 except Exception:
     def listar_aptos(somente_vagos=False):
         return []
