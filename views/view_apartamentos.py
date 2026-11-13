@@ -2,10 +2,16 @@
 view_apartamentos.py
 --------------------
 Tela de Apartamentos (mapa estilo escolha de assento de cinema) com filtros.
-Dados vindos de controllers.control_apto.ListarAptos(),
-que retorna (True, lista_de_tuplas) ou (False, mensagem), na ordem:
-    id, tipo, numeracao, vago, preco_pessoa, limite_pessoa,
-    pet_friendly, qt_camas, vista_mar, frigobar, mesa_sinuca
+Dados vindos de controls.control_apto.ListarAptos(),
+que retorna (True, lista_de_tuplas) ou (False, mensagem), na ordem da tabela:
+    id, tipo, numeracao, status, preco_pessoa, limite_pessoa, pet_friendly,
+    qt_camas, vista_mar, frigobar, mesa_sinuca, acessivel
+
+  - status: 'vago' | 'ocupado' | 'indisponivel' (texto)
+  - Se o controller ainda devolver 11 colunas (sem 'acessivel'), a tela continua
+    funcionando e apenas desativa o filtro "Acessível".
+  - Se o controller ainda devolver o antigo "vago" como 0/1, ele é convertido
+    para 'vago' / 'ocupado'.
 
 Registrar em JanelaPrincipal._registrar_telas():
     self.registrar_tela(
@@ -28,13 +34,50 @@ FONTE = "Segoe UI"
 VERDE = "#2E9E5B"
 VERDE_HOVER = "#237D47"
 VERMELHO = "#D9534F"
+CINZA = "#7C8598"
 VERDE_ESMAECIDO = "#CFE8DA"
 VERMELHO_ESMAECIDO = "#F0CFCD"
+CINZA_ESMAECIDO = "#E1E5EC"
 TEXTO_ESMAECIDO = "#8A93A6"
+
+# status -> (cor normal, cor esmaecida quando fora do filtro)
+CORES_STATUS = {
+    "vago": (VERDE, VERDE_ESMAECIDO),
+    "ocupado": (VERMELHO, VERMELHO_ESMAECIDO),
+    "indisponivel": (CINZA, CINZA_ESMAECIDO),
+}
+
+# Texto do filtro de status -> valor da tabela
+FILTRO_STATUS = {
+    "Disponível": "vago",
+    "Ocupado": "ocupado",
+    "Indisponível": "indisponivel",
+}
+
+# Ordem de exibição dos tipos (do menor para o maior)
+ORDEM_TIPOS = ["Standard", "Duplo", "Luxo", "Super Luxo", "Presidencial"]
+
+
+def normalizar_status(valor):
+    """Converte o valor vindo do banco em 'vago', 'ocupado' ou 'indisponivel'."""
+    if isinstance(valor, str):
+        v = valor.strip().lower().replace("í", "i")
+        if v in CORES_STATUS:
+            return v
+        if v in ("1", "true"):      # legado: "vago" como texto 0/1
+            return "vago"
+        if v in ("0", "false"):
+            return "ocupado"
+        return "indisponivel"       # valor desconhecido: não deixa reservar
+    return "vago" if valor else "ocupado"  # legado: 0/1 ou bool
+
+
+def chave_tipo(tipo):
+    return (ORDEM_TIPOS.index(tipo) if tipo in ORDEM_TIPOS else len(ORDEM_TIPOS), tipo)
 
 
 class TelaApartamentos(TelaBase):
-    CAMPOS = ("id", "tipo", "numeracao", "vago", "preco_pessoa", "limite_pessoa",
+    CAMPOS = ("id", "tipo", "numeracao", "status", "preco_pessoa", "limite_pessoa",
               "pet_friendly", "qt_camas", "vista_mar", "frigobar", "mesa_sinuca", "acessivel")
     EXTRAS = (("pet_friendly", "Pet friendly"), ("vista_mar", "Vista mar"),
               ("frigobar", "Frigobar"), ("mesa_sinuca", "Mesa de sinuca"), ("acessivel", "Acessível"))
@@ -47,7 +90,9 @@ class TelaApartamentos(TelaBase):
         self.apartamentos = {}   # numeracao -> dict
         self.botoes = {}         # numeracao -> botão
         self.selecionado = None
+        self.tem_acessivel = True
         self.vars_extras = {campo: ctk.BooleanVar() for campo, _ in self.EXTRAS}
+        self.chks_extras = {}
 
         self._criar_cabecalho().grid(row=0, column=0, sticky="ew", padx=30, pady=(20, 8))
         self._criar_filtros().grid(row=1, column=0, sticky="ew", padx=30, pady=(0, 10))
@@ -70,7 +115,8 @@ class TelaApartamentos(TelaBase):
 
         legenda = ctk.CTkFrame(cab, fg_color="transparent")
         legenda.grid(row=0, column=1, rowspan=2, sticky="e")
-        itens = [("Disponível", VERDE), ("Ocupado", VERMELHO), ("Selecionado", LARANJA)]
+        itens = [("Disponível", VERDE), ("Ocupado", VERMELHO),
+                 ("Indisponível", CINZA), ("Selecionado", LARANJA)]
         for i, (texto, cor) in enumerate(itens):
             ctk.CTkFrame(legenda, width=16, height=16, corner_radius=4, fg_color=cor
                          ).grid(row=0, column=i * 2, padx=(10, 5))
@@ -84,11 +130,12 @@ class TelaApartamentos(TelaBase):
         for col in range(6):
             card.grid_columnconfigure(col, weight=1, uniform="f")
 
+        # Tipo, andar, capacidade e camas são preenchidos com os dados em _carregar()
         self.om_tipo = self._filtro_menu(card, 0, "Tipo", ["Todos"])
         self.om_andar = self._filtro_menu(card, 1, "Andar", ["Todos"])
-        self.om_status = self._filtro_menu(card, 2, "Status", ["Todos", "Disponível", "Ocupado"])
-        self.om_cap = self._filtro_menu(card, 3, "Capacidade mín.", ["Qualquer", "1", "2", "3", "4", "5", "6"])
-        self.om_camas = self._filtro_menu(card, 4, "Camas mín.", ["Qualquer", "1", "2", "3", "4"])
+        self.om_status = self._filtro_menu(card, 2, "Status", ["Todos"] + list(FILTRO_STATUS))
+        self.om_cap = self._filtro_menu(card, 3, "Capacidade mín.", ["Qualquer"])
+        self.om_camas = self._filtro_menu(card, 4, "Camas mín.", ["Qualquer"])
 
         ctk.CTkLabel(card, text="Preço máx. (pessoa)", font=(FONTE, 11), text_color=TEXTO_CINZA
                      ).grid(row=0, column=5, sticky="w", padx=8, pady=(8, 0))
@@ -97,11 +144,13 @@ class TelaApartamentos(TelaBase):
         self.ent_preco.bind("<KeyRelease>", lambda e: self._aplicar_filtros())
 
         for i, (campo, texto) in enumerate(self.EXTRAS):
-            ctk.CTkCheckBox(
+            chk = ctk.CTkCheckBox(
                 card, text=texto, variable=self.vars_extras[campo],
                 command=self._aplicar_filtros, font=(FONTE, 12), text_color=TEXTO_CINZA,
                 checkbox_width=18, checkbox_height=18, fg_color=LARANJA, hover_color=LARANJA_HOVER,
-            ).grid(row=2, column=i, sticky="w", padx=8, pady=(8, 10))
+            )
+            chk.grid(row=2, column=i, sticky="w", padx=8, pady=(8, 10))
+            self.chks_extras[campo] = chk
 
         ctk.CTkButton(
             card, text="Limpar filtros", height=28, font=(FONTE, 12, "bold"),
@@ -159,16 +208,36 @@ class TelaApartamentos(TelaBase):
         if not ok:
             messagebox.showerror("Apartamentos", dados)
             return
+
         self.apartamentos = {}
+        self.tem_acessivel = bool(dados)
         for linha in dados:
             ap = dict(zip(self.CAMPOS, linha))
+            if len(linha) < len(self.CAMPOS):    # controller sem a coluna 'acessivel'
+                self.tem_acessivel = False
+            ap.setdefault("acessivel", 0)
+            ap["status"] = normalizar_status(ap.get("status"))
             self.apartamentos[ap["numeracao"]] = ap
         self.selecionado = None
 
-        tipos = sorted({a["tipo"] for a in self.apartamentos.values()})
+        aptos = self.apartamentos.values()
+        tipos = sorted({a["tipo"] for a in aptos}, key=chave_tipo)
         andares = sorted({n // 100 for n in self.apartamentos})
+        max_cap = max((a["limite_pessoa"] or 1 for a in aptos), default=1)
+        max_camas = max((a["qt_camas"] or 1 for a in aptos), default=1)
+
         self._atualizar_opcoes(self.om_tipo, ["Todos"] + tipos)
         self._atualizar_opcoes(self.om_andar, ["Todos"] + [str(a) for a in andares])
+        self._atualizar_opcoes(self.om_cap, ["Qualquer"] + [str(i) for i in range(1, max_cap + 1)])
+        self._atualizar_opcoes(self.om_camas, ["Qualquer"] + [str(i) for i in range(1, max_camas + 1)])
+
+        # Sem dado de acessibilidade, o filtro enganaria o usuário: desativa
+        chk = self.chks_extras["acessivel"]
+        if self.tem_acessivel:
+            chk.configure(state="normal")
+        else:
+            self.vars_extras["acessivel"].set(False)
+            chk.configure(state="disabled")
 
         self._montar_mapa()
         self._atualizar_detalhes()
@@ -208,14 +277,14 @@ class TelaApartamentos(TelaBase):
 
     def _pintar(self, num):
         ap = self.apartamentos[num]
-        vago = bool(ap["vago"])
+        status = ap["status"]
+        cor, cor_esmaecida = CORES_STATUS[status]
         btn = self.botoes[num]
         if not self._passa_filtros(ap):
-            cor = VERDE_ESMAECIDO if vago else VERMELHO_ESMAECIDO
-            btn.configure(fg_color=cor, hover_color=cor, state="disabled",
+            btn.configure(fg_color=cor_esmaecida, hover_color=cor_esmaecida, state="disabled",
                           text_color_disabled=TEXTO_ESMAECIDO)
-        elif not vago:
-            btn.configure(fg_color=VERMELHO, hover_color=VERMELHO, state="disabled",
+        elif status != "vago":          # ocupado ou indisponível: visível, mas não selecionável
+            btn.configure(fg_color=cor, hover_color=cor, state="disabled",
                           text_color_disabled=BRANCO)
         elif num == self.selecionado:
             btn.configure(fg_color=LARANJA, hover_color=LARANJA_HOVER, state="normal")
@@ -225,7 +294,7 @@ class TelaApartamentos(TelaBase):
     def _selecionar(self, num):
         anterior = self.selecionado
         self.selecionado = None if anterior == num else num  # clicar de novo desmarca
-        if anterior is not None:
+        if anterior is not None and anterior != num:
             self._pintar(anterior)
         self._pintar(num)
         self._atualizar_detalhes()
@@ -238,8 +307,8 @@ class TelaApartamentos(TelaBase):
         andar = self.om_andar.get()
         if andar.isdigit() and ap["numeracao"] // 100 != int(andar):
             return False
-        status = self.om_status.get()
-        if (status == "Disponível" and not ap["vago"]) or (status == "Ocupado" and ap["vago"]):
+        status = FILTRO_STATUS.get(self.om_status.get())    # None = "Todos"
+        if status is not None and ap["status"] != status:
             return False
         cap = self.om_cap.get()
         if cap.isdigit() and (ap["limite_pessoa"] or 0) < int(cap):
@@ -286,26 +355,30 @@ class TelaApartamentos(TelaBase):
             return
         ap = self.apartamentos[self.selecionado]
         preco = f"R$ {(ap['preco_pessoa'] or 0):.2f}".replace(".", ",")
+        limite = ap["limite_pessoa"] if ap["limite_pessoa"] is not None else "—"
         extras = [texto for campo, texto in self.EXTRAS if ap[campo]]
         self.lbl_num.configure(text=str(self.selecionado))
         self.lbl_info.configure(text=(
             f"Tipo: {ap['tipo']}\n"
             f"Andar: {self.selecionado // 100}º\n"
             f"Preço/pessoa: {preco}\n"
-            f"Limite: {ap['limite_pessoa']} pessoa(s)\n"
+            f"Limite: {limite} pessoa(s)\n"
             f"Camas: {ap['qt_camas']}\n"
             f"Extras: {', '.join(extras) if extras else 'nenhum'}"
         ))
         self.btn_reservar.configure(state="normal")
 
     def _atualizar_resumo(self):
-        total = len(self.apartamentos)
-        vagos = sum(1 for a in self.apartamentos.values() if a["vago"])
-        filtrados = sum(1 for a in self.apartamentos.values() if self._passa_filtros(a))
+        aptos = list(self.apartamentos.values())
+        contagem = {s: sum(1 for a in aptos if a["status"] == s) for s in CORES_STATUS}
+        filtrados = sum(1 for a in aptos if self._passa_filtros(a))
         self.lbl_resumo.configure(
-            text=f"{vagos} disponíveis  •  {total - vagos} ocupados  •  {filtrados} no filtro")
+            text=(f"{contagem['vago']} disponíveis  •  {contagem['ocupado']} ocupados  •  "
+                  f"{contagem['indisponivel']} indisponíveis  •  {filtrados} no filtro"))
 
     def _reservar(self):
+        if self.selecionado is None:
+            return
         self.app.apartamento_selecionado = self.selecionado  # para a tela de reservas usar
         self.app.mostrar_tela("reservas")
 

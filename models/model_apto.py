@@ -14,7 +14,7 @@ def criar_db_aptos():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tipo TEXT NOT NULL,
                 numeracao INTEGER NOT NULL UNIQUE,
-                vago INTEGER NOT NULL DEFAULT 1 CHECK (vago IN (0, 1)),
+                status TEXT NOT NULL DEFAULT 'vago' CHECK (status IN ('vago', 'ocupado', 'indisponivel')),
                 preco_pessoa REAL CHECK (preco_pessoa >= 0),
                 limite_pessoa INTEGER CHECK (limite_pessoa > 0),
                 pet_friendly INTEGER NOT NULL DEFAULT 0 CHECK (pet_friendly IN (0, 1)),
@@ -24,7 +24,13 @@ def criar_db_aptos():
                 mesa_sinuca INTEGER NOT NULL DEFAULT 0 CHECK (mesa_sinuca IN (0, 1)),
                 acessivel INTEGER NOT NULL DEFAULT 0 CHECK (acessivel IN (0, 1)))''')
     cx.commit()
-
+    
+def recriar():
+    cs.execute("DROP TABLE Apartamentos")
+    cx.commit()
+    criar_db_aptos()
+    
+recriar()
 
 def buscar_apto(numero):
     try:
@@ -37,7 +43,7 @@ def buscar_apto(numero):
 def listar_aptos(somente_vagos=False):
     try:
         if somente_vagos:
-            cs.execute("SELECT * FROM Apartamentos WHERE vago = 1")
+            cs.execute("SELECT * FROM Apartamentos WHERE status = 'vago'")
             return cs.fetchall()
         else:
             cs.execute("SELECT * FROM Apartamentos")
@@ -50,7 +56,7 @@ def listar_aptos(somente_vagos=False):
 def listar_aptos_vagos(somente_vagos=False):
     try:
         if somente_vagos:
-            cs.execute("SELECT * FROM Apartamentos WHERE vago = 1")
+            cs.execute("SELECT * FROM Apartamentos WHERE status = 'vago'")
             return cs.fetchall()
         else:
             cs.execute("SELECT * FROM Apartamentos")
@@ -117,9 +123,9 @@ def listar_aptos_mesa_sinuca(sinuca=False):
 def inserir_db_apto(tipo, numeracao, vago, preco_pessoa, limite_pessoa):
     try:
         cs.execute('''INSERT INTO Apartamentos
-                      (tipo, numeracao, vago, preco_pessoa, limite_pessoa)
+                      (tipo, numeracao, status, preco_pessoa, limite_pessoa)
                       VALUES (?, ?, ?, ?, ?)''',
-                   (tipo, numeracao, int(vago), preco_pessoa, limite_pessoa))
+                   (tipo, numeracao, vago, preco_pessoa, limite_pessoa))
         cx.commit()
         return True
     except sqlite3.IntegrityError as e:

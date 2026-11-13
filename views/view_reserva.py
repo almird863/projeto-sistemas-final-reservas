@@ -705,7 +705,6 @@ class TelaReservas(TelaBase):
         
         conta = carregar_conta(getattr(self.app, "usuario", ""))
         dados = conta['perfil']
-        # cpf_cliente = simpledialog.askstring(title="Confirme seu CPF", prompt="Confirme o CPF para realizar a reserva.")
         
         if dados:
             Status, dados_cliente = buscar_cliente(dados['cpf'])
