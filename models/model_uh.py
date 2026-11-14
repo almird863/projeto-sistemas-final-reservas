@@ -45,4 +45,20 @@ def inserir_uh(numeracao, status, vm, vr, acc):
         return False, f"Erro: {e}"
 
 
-# -------------------------------------------------------------------------------------- REGISTRO
+# -------------------------------------------------------------------------------------- ATUALIZAÇÕES
+
+
+def atualizar_uh_status(status, numeracao):
+    try:
+        cs.execute('''UPDATE Unidade_Habitacional SET status = ?,
+        ultima_att_dia = date('now', 'localtime'),
+        ultima_att_hora = time('now', 'localtime')
+        WHERE numeracao = ?''', (status, numeracao))
+        cx.commit()
+
+        return True, f"Unidade Habitacional Nº{numeracao} atualizada com o status: {status}"
+
+    except sqlite3.Error as e:
+        cx. rollback()
+
+        return False, f"Erro: {e}"
