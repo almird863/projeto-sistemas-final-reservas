@@ -23,14 +23,14 @@ def criar_tabela_hospedes():
 
 # -------------------------------------------------------------------------------------- BUSCAS
 
-def listar_hospedes():
+def buscar_hospedes():
     try:
         cs.execute("SELECT * FROM Hospedes")
         return cs.fetchall()
     except sqlite3.Error as e:
         return []
 
-def listar_hospede_por_cpf(cpf):
+def buscar_hospede_por_cpf(cpf):
     try:
         cs.execute(
             "SELECT * FROM Hospedes WHERE cpf = ?",
@@ -40,7 +40,7 @@ def listar_hospede_por_cpf(cpf):
     except sqlite3.Error:
         return False, []
     
-def listar_hospede_por_nome(nome):
+def buscar_hospede_por_nome(nome):
     try:
         cs.execute(
             "SELECT * FROM Hospedes WHERE nome = ?",

@@ -20,11 +20,29 @@ def criar_tabela_estadia():
                 FOREIGN KEY (id_uh) REFERENCES Unidade_Habitacional(id))''')
     cx.commit()
 
-def listar_estadia():
+
+# -------------------------------------------------------------------------------------- BUSCAR
+
+
+def buscar_estadia():
     try:
-        cs.execute("SELECT * FROM Reservas ORDER BY data_entrada")
-        return cs.fetchall()
+        cs.execute("SELECT * FROM Estadias")
+
+        return True, cs.fetchall()
+    
     except sqlite3.Error as e:
         print(f"Erro ao listar reservas: {e}")
+        
+        return False, []
+
+
+def buscar_estadia_por_hospede(id_hospede):
+    try:
+        cs.execute("SELECT * FROM Estadias ORDER BY checkin_data WHERE id_hospede = ?", (id_hospede,))
+        return True, cs.fetchall
+
+    except sqlite3.Error as e:
+        print(f"Erro ao listar reservas: {e}")
+
         return False, []
 
